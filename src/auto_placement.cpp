@@ -53,7 +53,7 @@ bool AutoPlacementManager::LoadData()
   wxString path;
   wxXmlDocument doc;
   wxXmlNode* child;
-  wxXmlProperty* properties;
+  wxXmlAttribute* properties;
   wxString value;
   WindowInfos window_info;
 
@@ -69,7 +69,7 @@ bool AutoPlacementManager::LoadData()
   m_vecWnd.clear();
 
   while (child) {
-    properties = child->GetProperties();
+    properties = child->GetAttributes();
     window_info.m_strName = properties->GetValue();
     properties = properties->GetNext();
 
@@ -113,7 +113,7 @@ bool AutoPlacementManager::SaveData()
   wxXmlDocument doc;
   wxXmlNode* node;
   wxXmlNode* root;
-  wxXmlProperty* properties;
+  wxXmlAttribute* properties;
 
   path = SettingsManager::Get().GetDataDirectory() + _T ("auto_placement.xml");
 
@@ -123,25 +123,25 @@ bool AutoPlacementManager::SaveData()
 
   for (iter = m_vecWnd.begin(); iter != m_vecWnd.end(); ++iter) {
     node = new wxXmlNode(root, wxXML_ELEMENT_NODE, _T ("Application"));
-    properties = new wxXmlProperty(_T ("Name"), (*iter).m_strName);
-    node->SetProperties(properties);
+    properties = new wxXmlAttribute(_T ("Name"), (*iter).m_strName);
+    node->SetAttributes(properties);
     properties->SetNext(
-        new wxXmlProperty(_T ("WindowStyle"), wxString::Format(_T ("%ld"), (*iter).m_wndStyle)));
+        new wxXmlAttribute(_T ("WindowStyle"), wxString::Format(_T ("%ld"), (*iter).m_wndStyle)));
     properties = properties->GetNext();
     properties->SetNext(
-        new wxXmlProperty(_T ("x"), wxString::Format(_T ("%d"), (*iter).m_rectxy.x)));
+        new wxXmlAttribute(_T ("x"), wxString::Format(_T ("%d"), (*iter).m_rectxy.x)));
     properties = properties->GetNext();
     properties->SetNext(
-        new wxXmlProperty(_T ("y"), wxString::Format(_T ("%d"), (*iter).m_rectxy.y)));
+        new wxXmlAttribute(_T ("y"), wxString::Format(_T ("%d"), (*iter).m_rectxy.y)));
     properties = properties->GetNext();
     properties->SetNext(
-        new wxXmlProperty(_T ("width"), wxString::Format(_T ("%d"), (*iter).m_rectxy.width)));
+        new wxXmlAttribute(_T ("width"), wxString::Format(_T ("%d"), (*iter).m_rectxy.width)));
     properties = properties->GetNext();
     properties->SetNext(
-        new wxXmlProperty(_T ("height"), wxString::Format(_T ("%d"), (*iter).m_rectxy.height)));
+        new wxXmlAttribute(_T ("height"), wxString::Format(_T ("%d"), (*iter).m_rectxy.height)));
     properties = properties->GetNext();
     properties->SetNext(
-        new wxXmlProperty(_T ("Resize"), (*iter).m_flagResize ? _T ("True") : _T ("False")));
+        new wxXmlAttribute(_T ("Resize"), (*iter).m_flagResize ? _T ("True") : _T ("False")));
   }
 
   doc.Save(path.c_str());

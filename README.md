@@ -1,56 +1,102 @@
-# WinSplit Revolution
+# WinSplit Revolution Revived
 
-WinSplit Revolution is a small utility which allows you to easily organize your
-open windows by tiling, resizing and positioning them to make the best use of
-your desktop real estate.
+[![Build Status](https://github.com/x-vibe/winsplit-revolution-revived/actions/workflows/build.yml/badge.svg)](https://github.com/x-vibe/winsplit-revolution-revived/actions)
+[![Release](https://img.shields.io/github/v/release/x-vibe/winsplit-revolution-revived)](https://github.com/x-vibe/winsplit-revolution-revived/releases)
+[![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 
-[Downloads](https://skullzy.ca/software/WinSplit/releases)  
-[Documentation](https://skullzy.ca/software/WinSplit/docs)
+A Windows utility for organizing windows by tiling, resizing, and positioning using hotkeys and a virtual numpad. **Now with full Windows 10/11 support.**
+
+## Download
+
+**[Download Latest Release](https://github.com/x-vibe/winsplit-revolution-revived/releases/latest)**
+
+- **Portable ZIP** - Extract and run, no installation needed
+- Works on Windows 10 and Windows 11 (x64)
 
 ## Features
 
-- Automated window handling (resize, move, reorganize, close tasks)
-- Shape - process association
-- Global hotkeys and clickable virtual numpad
-- Automatic startup
-- Automatic update
-- Moving a window with mouse (drag'n'go)
-- Hotkey configure
-- Layout configure
-- Fusion between 2 windows
-- Minimize/Restore by hotkey
-- Mosaic mode
+- **Hotkey Window Management** - Resize and position windows using Ctrl+Alt+Numpad
+- **Virtual Numpad** - Clickable 3x3 grid for mouse-based positioning
+- **Multi-Monitor Support** - Move windows between monitors with Ctrl+Alt+Arrow
+- **Drag'n'Go** - Hold modifier keys and drag windows to snap positions
+- **Layout Manager** - Customizable grid layouts (25%, 33%, 50%, 67%, 75%)
+- **Window Fusion** - Combine two windows side by side
+- **Mosaic Mode** - Tile all open windows
+- **Auto Placement** - Remember and restore window positions per application
+- **26 Languages** - Full internationalization support
 
-## Donate
+## Quick Start
 
-If you feel the urge to support my work, you can find out how to do that here.
+1. Download the portable ZIP from [Releases](https://github.com/x-vibe/winsplit-revolution-revived/releases)
+2. Extract to any folder
+3. Run `Winsplit.exe`
+4. Use **Ctrl+Alt+Numpad** keys to position the active window:
 
-https://skullzy.ca/donate
+```
+┌─────┬─────┬─────┐
+│  7  │  8  │  9  │  Top row
+├─────┼─────┼─────┤
+│  4  │  5  │  6  │  Middle row (5 = maximize)
+├─────┼─────┼─────┤
+│  1  │  2  │  3  │  Bottom row
+└─────┴─────┴─────┘
+```
 
-## History
+Press the same key multiple times to cycle through width percentages (25% → 33% → 50% → 67% → 75%).
 
-This project recovers the code for v9.02 of WinSplit Revolution from the
-[developpez](http://projets.developpez.com/projects/winsplit-revolution/) site.
-Fixes and enhancements from versions 11.02, 11.03 and 11.04 have probably been
-lost.
+## System Requirements
 
-The main goal of this project is to get sizing and positioning working correctly
-for windows 10. The [invisible frame](https://github.com/Maximus5/ConEmu/issues/284#issuecomment-257339519)
-in windows 10 breaks sizing and positioning. A fix for this is already
-implemented.
+- Windows 10 or Windows 11 (x64)
+- No additional runtime dependencies
 
-The secondary goal is to clean up, modernize and make the code base more
-accessible for contributions.
+## Building from Source
 
-## Building
+### Prerequisites
 
-### Build wxWidgets
+- Visual Studio 2022 or newer with "Desktop development with C++" workload
+- Windows SDK 10.0.26100.0 or newer
 
-- Open a developers x64 command prompt in the project folder
-- `cd wxWidgets\build\msw`
-- `nmake -f makefile.vc BUILD=release RUNTIME_LIBS=static TARGET_CPU=X64`
+### Build
 
-### Build WinSplit Revolution
+```cmd
+git clone https://github.com/x-vibe/winsplit-revolution-revived.git
+cd winsplit-revolution-revived
+build.cmd
+```
 
-- Open a developers x64 command prompt in the project folder
-- `msbuild "Winsplit Revolution.sln" -property:Configuration=Release -property:Platform=x64`
+Output: `x64/Release/Winsplit.exe`
+
+### Manual Build
+
+```cmd
+# Build wxWidgets (first time only)
+cd wxWidgets\build\msw
+nmake -f makefile.vc BUILD=release RUNTIME_LIBS=static TARGET_CPU=X64
+
+# Build WinSplit
+cd ..\..
+msbuild "Winsplit Revolution.sln" /p:Configuration=Release /p:Platform=x64
+```
+
+## Credits
+
+**Original WinSplit Revolution** (2005-2009):
+- Raphael Lencrerot (lead developer)
+- Xavier Perrissoud
+- Arturo Espinosa
+- Dan Smith
+
+**Previous Maintainers**:
+- [dozius](https://github.com/dozius/winsplit-revolution) - Windows 10 invisible frame fix
+- [skullzy](https://codeberg.org/skullzy/winsplit-revolution) - Codeberg maintenance
+
+**This Fork**:
+- [x-vibe](https://github.com/x-vibe) - Windows 11 support, wxWidgets 3.x migration
+
+## License
+
+GNU General Public License v3.0 - See [LICENSE](LICENSE) for details.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for version history.

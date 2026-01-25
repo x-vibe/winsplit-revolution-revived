@@ -37,7 +37,7 @@ void LayoutManager::SaveData()
   wxXmlNode* elm = NULL;
   wxXmlNode* sub_elm = NULL;
   wxXmlNode* root = NULL;
-  wxXmlProperty* property = NULL;
+  wxXmlAttribute* property = NULL;
 
   vector<RatioRect>::iterator it;
   int count;
@@ -56,8 +56,8 @@ void LayoutManager::SaveData()
       elm = elm->GetNext();
     }
 
-    property = new wxXmlProperty(_T ("NbCombo"), wxString::Format(_T ("%d"), tab_seq[i].size()));
-    elm->SetProperties(property);
+    property = new wxXmlAttribute(_T ("NbCombo"), wxString::Format(_T ("%d"), tab_seq[i].size()));
+    elm->SetAttributes(property);
 
     it = tab_seq[i].begin();
     count = 0;
@@ -72,18 +72,18 @@ void LayoutManager::SaveData()
         sub_elm = sub_elm->GetNext();
       }
 
-      property = new wxXmlProperty(_T ("x"), wxString::Format(_T ("%.2f"), (*it).x));
-      sub_elm->SetProperties(property);
+      property = new wxXmlAttribute(_T ("x"), wxString::Format(_T ("%.2f"), (*it).x));
+      sub_elm->SetAttributes(property);
 
-      property->SetNext(new wxXmlProperty(_T ("y"), wxString::Format(_T ("%.2f"), (*it).y)));
+      property->SetNext(new wxXmlAttribute(_T ("y"), wxString::Format(_T ("%.2f"), (*it).y)));
       property = property->GetNext();
 
       property->SetNext(
-          new wxXmlProperty(_T ("width"), wxString::Format(_T ("%.2f"), (*it).width)));
+          new wxXmlAttribute(_T ("width"), wxString::Format(_T ("%.2f"), (*it).width)));
       property = property->GetNext();
 
       property->SetNext(
-          new wxXmlProperty(_T ("height"), wxString::Format(_T ("%.2f"), (*it).height)));
+          new wxXmlAttribute(_T ("height"), wxString::Format(_T ("%.2f"), (*it).height)));
 
       ++count;
       ++it;
@@ -101,7 +101,7 @@ void LayoutManager::LoadData()
   wxXmlDocument doc;
   wxXmlNode* elm;
   wxXmlNode* sub_elmt;
-  wxXmlProperty* property;
+  wxXmlAttribute* property;
   wxString value;
   double val_tmp;
   long nb_combo;
@@ -121,7 +121,7 @@ void LayoutManager::LoadData()
     tab_seq[i].clear();
 
     // Sequence
-    property = elm->GetProperties();
+    property = elm->GetAttributes();
     value = property->GetValue();
     value.ToLong(&nb_combo);
     tab_seq[i].resize(nb_combo);
@@ -130,7 +130,7 @@ void LayoutManager::LoadData()
     sub_elmt = elm->GetChildren();
 
     for (int j = 0; j < nb_combo; ++j) {
-      property = sub_elmt->GetProperties();
+      property = sub_elmt->GetAttributes();
       value = property->GetValue();
       value.ToDouble(&tab_seq[i][j].x);
 

@@ -7,6 +7,18 @@
 #pragma comment(lib, "dwmapi.lib")
 #pragma comment(lib, "shcore.lib")
 
+// Define NTSTATUS if not already defined
+#ifndef STATUS_SUCCESS
+#define STATUS_SUCCESS ((LONG)0x00000000L)
+#endif
+
+#ifndef _NTSTATUS_DEFINED
+#define _NTSTATUS_DEFINED
+typedef LONG NTSTATUS;
+#endif
+
+// RTL_OSVERSIONINFOW is already defined in winnt.h in modern Windows SDKs
+
 namespace DwmUtils {
 
 // Cache for Windows version checks
@@ -27,7 +39,7 @@ static void EnsureVersionCached()
     if (rtlGetVersion) {
       RTL_OSVERSIONINFOW osvi = {0};
       osvi.dwOSVersionInfoSize = sizeof(osvi);
-      if (rtlGetVersion(&osvi) == 0) {
+      if (rtlGetVersion(&osvi) == STATUS_SUCCESS) {
         s_cachedMajorVersion = osvi.dwMajorVersion;
         s_cachedBuildNumber = osvi.dwBuildNumber;
         return;

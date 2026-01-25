@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Migrated from wxWidgets 2.x to wxWidgets 3.x API compatibility
+- Updated project to build with Visual Studio 2025/2026 (v145 toolset)
+- Updated Windows SDK requirement to 10.0.26100.0
+
+### Fixed
+
+- Added missing PNG menu icons and all 26 language translations (retrieved from original Codeberg repo)
+- Fixed wxLANGUAGE_PERSIAN → wxLANGUAGE_FARSI for wxWidgets 3.x compatibility
+- wxWidgets 3.x API compatibility: `GetPropVal` → `GetAttribute` in settings XML parsing
+- wxWidgets 3.x API compatibility: `AddProperty` → `AddAttribute` in settings XML writing
+- wxWidgets 3.x API compatibility: `SetTickFreq(freq, pos)` → `SetTickFreq(freq)` (single parameter)
+- wxWidgets 3.x API compatibility: Removed deprecated `wxLOCALE_CONV_ENCODING` flag
+- Fixed winsock.h/winsock2.h header conflicts by adding `WIN32_LEAN_AND_MEAN` guards
+- Fixed NTSTATUS type definition for modern Windows SDK compatibility
+- Removed duplicate `RTL_OSVERSIONINFOW` typedef (already in modern SDK winnt.h)
+
 ### Added
 
 - GitHub Actions CI/CD workflow for automated builds on Windows Server 2022

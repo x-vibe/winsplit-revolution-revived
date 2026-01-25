@@ -188,7 +188,7 @@ bool HotkeysManager::LoadData()
 
   wxXmlDocument doc;
   wxXmlNode* child;
-  wxXmlProperty* properties;
+  wxXmlAttribute* properties;
   wxString value;
 
   VirtualModifierManager mod_manager;
@@ -206,7 +206,7 @@ bool HotkeysManager::LoadData()
   while (child) {
     i = GetTaskIndex(child->GetName());
 
-    properties = child->GetProperties();
+    properties = child->GetAttributes();
     value = properties->GetValue();
     vec_hotkey[i].modifier1 = mod_manager.GetValueFromString(value);
 
@@ -239,7 +239,7 @@ bool HotkeysManager::SaveData()
   wxXmlDocument doc;
   wxXmlNode* node;
   wxXmlNode* root;
-  wxXmlProperty* properties;
+  wxXmlAttribute* properties;
   wxString value;
   VirtualModifierManager mod_manager;
 
@@ -250,17 +250,17 @@ bool HotkeysManager::SaveData()
 
   for (unsigned int i = 0; i < vec_hotkey.size(); ++i) {
     node = new wxXmlNode(root, wxXML_ELEMENT_NODE, xml_str[i]);
-    properties = new wxXmlProperty(_T ("Modifier1"),
+    properties = new wxXmlAttribute(_T ("Modifier1"),
                                    mod_manager.GetStringFromValue(vec_hotkey[i].modifier1));
-    node->SetProperties(properties);
-    properties->SetNext(new wxXmlProperty(_T ("Modifier2"),
+    node->SetAttributes(properties);
+    properties->SetNext(new wxXmlAttribute(_T ("Modifier2"),
                                           mod_manager.GetStringFromValue(vec_hotkey[i].modifier2)));
     properties = properties->GetNext();
-    properties->SetNext(new wxXmlProperty(_T ("VirtualHotkey"),
+    properties->SetNext(new wxXmlAttribute(_T ("VirtualHotkey"),
                                           wxString::Format(_T ("%d"), vec_hotkey[i].virtualKey)));
     properties = properties->GetNext();
     properties->SetNext(
-        new wxXmlProperty(_T ("Activate"), vec_hotkey[i].active ? _T ("True") : _T ("False")));
+        new wxXmlAttribute(_T ("Activate"), vec_hotkey[i].active ? _T ("True") : _T ("False")));
   }
 
   doc.Save(path.c_str());

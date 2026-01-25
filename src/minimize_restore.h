@@ -2,6 +2,9 @@
 #define __MINIMIZE_RESTORE_H__
 
 #include <stack>
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
 
 struct WindowMinimized {

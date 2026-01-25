@@ -2,6 +2,9 @@
 #define __HOTKEYS_CONFIGURE_H__
 
 #include <vector>
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
 #include <wx/listctrl.h>
 #include <wx/wx.h>

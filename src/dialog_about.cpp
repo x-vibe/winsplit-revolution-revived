@@ -57,7 +57,7 @@ void AboutDialog::CreateControls()
              << _T ("\n");
   *ptxtAbout << _("Created by Raphael Lencrerot") << _T ("\n\n");
 
-  *ptxtAbout << _T ("Website https://github.com/dozius/winsplit-revolution")
+  *ptxtAbout << _T ("Website https://github.com/x-vibe/winsplit-revolution-revived")
              << _T ("\n\n");
 
   *ptxtAbout << _("This program comes with ABSOLUTELY NO WARRANTY. This is free software, and you "
@@ -75,7 +75,13 @@ void AboutDialog::CreateControls()
   *ptxtAbout << _T ("Dan Smith (developer)")
              << _T ("\n\n");
 
-  *ptxtAbout << _T ("Special thanks to NX (icons design)");
+  *ptxtAbout << _T ("Special thanks to NX (icons design)")
+             << _T ("\n\n");
+
+  *ptxtAbout << _("Windows 11 Port:") << _T ("\n");
+  *ptxtAbout << _T ("x-vibe (Windows 11 compatibility, DPI awareness)")
+             << _T ("\n");
+  *ptxtAbout << _T ("https://github.com/x-vibe/winsplit-revolution-revived");
   ptxtAbout->SetInsertionPoint(0);
 
   wxBitmap bitmapwx(builtwithwx_xpm);
@@ -126,5 +132,5 @@ void AboutDialog::OnURLClick(wxTextUrlEvent& event)
   wxMouseEvent mouse_event = event.GetMouseEvent();
 
   if (mouse_event.Button(wxMOUSE_BTN_LEFT))
-    wxLaunchDefaultBrowser(_T ("https://github.com/dozius/winsplit-revolution"));
+    wxLaunchDefaultBrowser(_T ("https://github.com/x-vibe/winsplit-revolution-revived"));
 }

@@ -23,7 +23,21 @@ const wxLanguage SettingsManager::AvailableLangIds[] = {wxLANGUAGE_ENGLISH,
                                                         wxLANGUAGE_CZECH,
                                                         wxLANGUAGE_POLISH,
                                                         wxLANGUAGE_CHINESE_TRADITIONAL,
-                                                        wxLANGUAGE_CHINESE_SIMPLIFIED};
+                                                        wxLANGUAGE_CHINESE_SIMPLIFIED,
+                                                        wxLANGUAGE_ARABIC,
+                                                        wxLANGUAGE_BENGALI,
+                                                        wxLANGUAGE_GREEK,
+                                                        wxLANGUAGE_HINDI,
+                                                        wxLANGUAGE_INDONESIAN,
+                                                        wxLANGUAGE_JAPANESE,
+                                                        wxLANGUAGE_KOREAN,
+                                                        wxLANGUAGE_FARSI,
+                                                        wxLANGUAGE_ROMANIAN,
+                                                        wxLANGUAGE_RUSSIAN,
+                                                        wxLANGUAGE_THAI,
+                                                        wxLANGUAGE_TURKISH,
+                                                        wxLANGUAGE_UKRAINIAN,
+                                                        wxLANGUAGE_VIETNAMESE};
 
 const wxString SettingsManager::AvailableLangNames[] = {_T ("English"),
                                                         _T ("Français"),
@@ -36,7 +50,21 @@ const wxString SettingsManager::AvailableLangNames[] = {_T ("English"),
                                                         _T ("Czech"),
                                                         _T ("Polish"),
                                                         _T ("Chinese Traditional"),
-                                                        _T ("Chinese Simplified")};
+                                                        _T ("Chinese Simplified"),
+                                                        _T ("العربية"),
+                                                        _T ("বাংলা"),
+                                                        _T ("Ελληνικά"),
+                                                        _T ("हिन्दी"),
+                                                        _T ("Bahasa Indonesia"),
+                                                        _T ("日本語"),
+                                                        _T ("한국어"),
+                                                        _T ("فارسی"),
+                                                        _T ("Română"),
+                                                        _T ("Русский"),
+                                                        _T ("ไทย"),
+                                                        _T ("Türkçe"),
+                                                        _T ("Українська"),
+                                                        _T ("Tiếng Việt")};
 
 SettingsManager::SettingsManager()
 {
@@ -206,7 +234,7 @@ void SettingsManager::setLanguageIndex(int index)
     return;
   }
   if (index != m_iLanguage) {
-    if (!m_locale.Init(AvailableLangIds[index], wxLOCALE_CONV_ENCODING)) {
+    if (!m_locale.Init(AvailableLangIds[index])) {
       wxMessageBox(_T ("Unable to initialize language !"), _("Error"), wxICON_ERROR);
     }
     else {
@@ -666,11 +694,11 @@ void SettingsManager::SaveSettings()
 {
   wxXmlDocument doc;
   wxXmlNode *node, *root;
-  wxXmlProperty* prop;
+  wxXmlAttribute* prop;
 
   root = new wxXmlNode(NULL, wxXML_ELEMENT_NODE, _T ("WinSplit_Settings"));
-  prop = new wxXmlProperty(_T ("Version"), _T ("1.0"));
-  root->SetProperties(prop);
+  prop = new wxXmlAttribute(_T ("Version"), _T ("1.0"));
+  root->SetAttributes(prop);
 
   root->AddChild(node = new wxXmlNode(NULL, wxXML_ELEMENT_NODE, _T ("General")));
   SaveGeneralSettings(node);
@@ -709,21 +737,21 @@ void SettingsManager::ReadGeneralSettings(wxXmlNode* container)
     nodName = node->GetName();
     long l;
     if (nodName == _T ("AcceptTopMostWindow")) {
-      m_bAcceptTopmostWindows = (node->GetProperties()->GetValue() == _T ("True"));
+      m_bAcceptTopmostWindows = (node->GetAttributes()->GetValue() == _T ("True"));
     }
     else if (nodName == _T ("ShowHotKeysWarnings")) {
-      m_bShowHKWarnings = (node->GetProperties()->GetValue() == _T ("True"));
+      m_bShowHKWarnings = (node->GetAttributes()->GetValue() == _T ("True"));
     }
     else if (nodName == _T ("Language")) {
-      if (node->GetProperties()->GetValue().ToLong(&l)) {
+      if (node->GetAttributes()->GetValue().ToLong(&l)) {
         setLanguageIndex((int)l);
       }
     }
     else if (nodName == _T ("TempFiles")) {
-      if (node->GetPropVal(_T ("AutoDelete"), &sValue)) {
+      if (node->GetAttribute(_T ("AutoDelete"), &sValue)) {
         m_bAutoDelTmpFiles = (sValue == _T ("True"));
       }
-      if (node->GetPropVal(_T ("AutoDelTime"), &sValue)) {
+      if (node->GetAttribute(_T ("AutoDelTime"), &sValue)) {
         sValue.ToLong(&l);
         m_iAutoDelTime = int(l);
       }
@@ -742,14 +770,14 @@ void SettingsManager::SaveGeneralSettings(wxXmlNode* container)
           wxXML_ELEMENT_NODE,
           _T ("AcceptTopMostWindow"),
           wxEmptyString,
-          new wxXmlProperty(_T ("Value"), m_bAcceptTopmostWindows ? _T ("True") : _T ("False"))));
+          new wxXmlAttribute(_T ("Value"), m_bAcceptTopmostWindows ? _T ("True") : _T ("False"))));
 
   node->SetNext(new wxXmlNode(
       NULL,
       wxXML_ELEMENT_NODE,
       _T ("ShowHotKeysWarnings"),
       wxEmptyString,
-      new wxXmlProperty(_T ("Value"), m_bShowHKWarnings ? _T ("True") : _T ("False"))));
+      new wxXmlAttribute(_T ("Value"), m_bShowHKWarnings ? _T ("True") : _T ("False"))));
   node = node->GetNext();
 
   node->SetNext(
@@ -757,13 +785,13 @@ void SettingsManager::SaveGeneralSettings(wxXmlNode* container)
                     wxXML_ELEMENT_NODE,
                     _T ("Language"),
                     wxEmptyString,
-                    new wxXmlProperty(_T ("Value"), wxString::Format(_T ("%0d"), m_iLanguage))));
+                    new wxXmlAttribute(_T ("Value"), wxString::Format(_T ("%0d"), m_iLanguage))));
   node = node->GetNext();
 
   node->SetNext(new wxXmlNode(NULL, wxXML_ELEMENT_NODE, _T ("TempFiles")));
   node = node->GetNext();
-  node->AddProperty(_T ("AutoDelete"), m_bAutoDelTmpFiles ? _T ("True") : _T ("False"));
-  node->AddProperty(_T ("AutoDelTime"), wxString::Format(_T ("%0d"), m_iAutoDelTime));
+  node->AddAttribute(_T ("AutoDelete"), m_bAutoDelTmpFiles ? _T ("True") : _T ("False"));
+  node->AddAttribute(_T ("AutoDelTime"), wxString::Format(_T ("%0d"), m_iAutoDelTime));
 }
 
 void SettingsManager::ReadPopupSettings(wxXmlNode* container)
@@ -775,32 +803,32 @@ void SettingsManager::ReadPopupSettings(wxXmlNode* container)
   while (node) {
     nodName = node->GetName();
     if (nodName == _T ("Position")) {
-      if (node->GetPropVal(_T ("X"), &sValue)) {
+      if (node->GetAttribute(_T ("X"), &sValue)) {
         sValue.ToLong(&l);
         m_iVN_PosX = int(l);
       }
-      if (node->GetPropVal(_T ("Y"), &sValue)) {
+      if (node->GetAttribute(_T ("Y"), &sValue)) {
         sValue.ToLong(&l);
         m_iVN_PosY = int(l);
       }
     }
     else if (nodName == _T ("Style")) {
-      if (node->GetPropVal(_T ("Reduced"), &sValue)) {
+      if (node->GetAttribute(_T ("Reduced"), &sValue)) {
         m_bVN_Reduced = (sValue == _T ("True"));
       }
-      if (node->GetPropVal(_T ("Transparency"), &sValue)) {
+      if (node->GetAttribute(_T ("Transparency"), &sValue)) {
         sValue.ToLong(&l);
         m_iVN_Transparency = (int)l;
       }
     }
     else if (nodName == _T ("Comportment")) {
-      if (node->GetPropVal(_T ("ShowAtBoot"), &sValue)) {
+      if (node->GetAttribute(_T ("ShowAtBoot"), &sValue)) {
         m_bVN_ShownAtBoot = (sValue == _T ("True"));
       }
-      if (node->GetPropVal(_T ("SaveAtExit"), &sValue)) {
+      if (node->GetAttribute(_T ("SaveAtExit"), &sValue)) {
         m_bVN_SavePosOnExit = (sValue == _T ("True"));
       }
-      if (node->GetPropVal(_T ("AutoHide"), &sValue)) {
+      if (node->GetAttribute(_T ("AutoHide"), &sValue)) {
         m_bVN_AutoHide = (sValue == _T ("True"));
       }
     }
@@ -814,20 +842,20 @@ void SettingsManager::SavePopupSettings(wxXmlNode* container)
   wxXmlNode* node;
 
   container->AddChild(node = new wxXmlNode(NULL, wxXML_ELEMENT_NODE, _T ("Position")));
-  node->AddProperty(_T ("X"), wxString::Format(_T ("%0d"), m_iVN_PosX));
-  node->AddProperty(_T ("Y"), wxString::Format(_T ("%0d"), m_iVN_PosY));
+  node->AddAttribute(_T ("X"), wxString::Format(_T ("%0d"), m_iVN_PosX));
+  node->AddAttribute(_T ("Y"), wxString::Format(_T ("%0d"), m_iVN_PosY));
 
   node->SetNext(new wxXmlNode(NULL, wxXML_ELEMENT_NODE, _T ("Style")));
   node = node->GetNext();
-  node->AddProperty(_T ("Reduced"), m_bVN_Reduced ? _T ("True") : _T ("False"));
-  node->AddProperty(_T ("Transparency"), wxString::Format(_T ("%0d"), m_iVN_Transparency));
+  node->AddAttribute(_T ("Reduced"), m_bVN_Reduced ? _T ("True") : _T ("False"));
+  node->AddAttribute(_T ("Transparency"), wxString::Format(_T ("%0d"), m_iVN_Transparency));
 
   node->SetNext(new wxXmlNode(NULL, wxXML_ELEMENT_NODE, _T ("Comportment")));
   node = node->GetNext();
-  node->AddProperty(_T ("ShowAtBoot"), (m_bVN_ShownAtBoot ? _T ("True") : _T ("False")));
-  node->AddProperty(_T ("SaveAtExit"), (m_bVN_SavePosOnExit ? _T ("True") : _T ("False")));
+  node->AddAttribute(_T ("ShowAtBoot"), (m_bVN_ShownAtBoot ? _T ("True") : _T ("False")));
+  node->AddAttribute(_T ("SaveAtExit"), (m_bVN_SavePosOnExit ? _T ("True") : _T ("False")));
   wxString sTmp = (m_bVN_AutoHide ? _T ("True") : _T ("False"));
-  node->AddProperty(_T ("AutoHide"), sTmp);
+  node->AddAttribute(_T ("AutoHide"), sTmp);
 }
 
 void SettingsManager::ReadWebUpdateSettings(wxXmlNode* container)
@@ -839,14 +867,14 @@ void SettingsManager::ReadWebUpdateSettings(wxXmlNode* container)
   while (node) {
     nodName = node->GetName();
     if (nodName == _T ("AutoCheck")) {
-      m_bCheckForUpdates = (node->GetProperties()->GetValue() == _T ("True"));
+      m_bCheckForUpdates = (node->GetAttributes()->GetValue() == _T ("True"));
     }
     else if (nodName == _T ("Frequency")) {
-      if (node->GetProperties()->GetValue().ToLong(&l))
+      if (node->GetAttributes()->GetValue().ToLong(&l))
         m_iUpdateCheckFrequency = l;
     }
     else if (nodName == _T ("LastCheck")) {
-      if (node->GetProperties()->GetValue().ToLong(&l))
+      if (node->GetAttributes()->GetValue().ToLong(&l))
         m_tLastUpdateCheck = l;
     }
 
@@ -859,15 +887,15 @@ void SettingsManager::SaveWebUpdateSettings(wxXmlNode* container)
   wxXmlNode* node;
 
   container->AddChild(node = new wxXmlNode(NULL, wxXML_ELEMENT_NODE, _T ("AutoCheck")));
-  node->AddProperty(_T ("Value"), m_bCheckForUpdates ? _T ("True") : _T ("False"));
+  node->AddAttribute(_T ("Value"), m_bCheckForUpdates ? _T ("True") : _T ("False"));
 
   node->SetNext(new wxXmlNode(NULL, wxXML_ELEMENT_NODE, _T ("Frequency")));
   node = node->GetNext();
-  node->AddProperty(_T ("Value"), wxString::Format(_T ("%0d"), m_iUpdateCheckFrequency));
+  node->AddAttribute(_T ("Value"), wxString::Format(_T ("%0d"), m_iUpdateCheckFrequency));
 
   node->SetNext(new wxXmlNode(NULL, wxXML_ELEMENT_NODE, _T ("LastCheck")));
   node = node->GetNext();
-  node->AddProperty(_T ("Value"), wxString::Format(_T ("%0ld"), m_tLastUpdateCheck));
+  node->AddAttribute(_T ("Value"), wxString::Format(_T ("%0ld"), m_tLastUpdateCheck));
 }
 
 void SettingsManager::ReadDragNGoSettings(wxXmlNode* container)
@@ -880,32 +908,32 @@ void SettingsManager::ReadDragNGoSettings(wxXmlNode* container)
   while (node) {
     nodName = node->GetName();
     if (nodName == _T ("Enabled")) {
-      m_bDNG_Enabled = (node->GetProperties()->GetValue() == _T ("True"));
+      m_bDNG_Enabled = (node->GetAttributes()->GetValue() == _T ("True"));
     }
     else if (nodName == _T ("TimerFrequency")) {
-      if (node->GetProperties()->GetValue().ToLong(&l))
+      if (node->GetAttributes()->GetValue().ToLong(&l))
         m_iDNG_timer = l;
     }
     else if (nodName == _T ("DetectionRadius")) {
-      if (node->GetProperties()->GetValue().ToLong(&l))
+      if (node->GetAttributes()->GetValue().ToLong(&l))
         m_iDNG_Radius = l;
     }
     else if (nodName == _T ("ZoneColors")) {
-      if (node->GetPropVal(_T ("Background"), &sValue))
+      if (node->GetAttribute(_T ("Background"), &sValue))
         m_cDNG_BgColor.Set(sValue);
 
-      if (node->GetPropVal(_T ("Foreground"), &sValue))
+      if (node->GetAttribute(_T ("Foreground"), &sValue))
         m_cDNG_FgColor.Set(sValue);
     }
     else if (nodName == _T ("Transparency")) {
-      if (node->GetProperties()->GetValue().ToLong(&l))
+      if (node->GetAttributes()->GetValue().ToLong(&l))
         m_iDNG_Transparency = l;
     }
     else if (nodName == _T ("Modifiers")) {
-      if (node->GetPropVal(_T ("Modifier1"), &sValue))
+      if (node->GetAttribute(_T ("Modifier1"), &sValue))
         m_modDNG1 = modManager.GetValueFromString(sValue);
 
-      if (node->GetPropVal(_T ("Modifier2"), &sValue))
+      if (node->GetAttribute(_T ("Modifier2"), &sValue))
         m_modDNG2 = modManager.GetValueFromString(sValue);
     }
 
@@ -920,33 +948,33 @@ void SettingsManager::SaveDragNGoSettings(wxXmlNode* container)
   VirtualModifierManager modManager;
 
   container->AddChild(node = new wxXmlNode(NULL, wxXML_ELEMENT_NODE, _T ("Enabled")));
-  node->AddProperty(_T ("Value"), m_bDNG_Enabled ? _T ("True") : _T ("False"));
+  node->AddAttribute(_T ("Value"), m_bDNG_Enabled ? _T ("True") : _T ("False"));
 
   node->SetNext(new wxXmlNode(NULL, wxXML_ELEMENT_NODE, _T ("TimerFrequency")));
   node = node->GetNext();
-  node->AddProperty(_T ("Value"), wxString::Format(_T ("%0d"), m_iDNG_timer));
+  node->AddAttribute(_T ("Value"), wxString::Format(_T ("%0d"), m_iDNG_timer));
 
   node->SetNext(new wxXmlNode(NULL, wxXML_ELEMENT_NODE, _T ("DetectionRadius")));
   node = node->GetNext();
-  node->AddProperty(_T ("Value"), wxString::Format(_T ("%0d"), m_iDNG_Radius));
+  node->AddAttribute(_T ("Value"), wxString::Format(_T ("%0d"), m_iDNG_Radius));
 
   node->SetNext(new wxXmlNode(NULL, wxXML_ELEMENT_NODE, _T ("ZoneColors")));
   node = node->GetNext();
-  node->AddProperty(_T ("Background"), m_cDNG_BgColor.GetAsString(wxC2S_HTML_SYNTAX));
-  node->AddProperty(_T ("Foreground"), m_cDNG_FgColor.GetAsString(wxC2S_HTML_SYNTAX));
+  node->AddAttribute(_T ("Background"), m_cDNG_BgColor.GetAsString(wxC2S_HTML_SYNTAX));
+  node->AddAttribute(_T ("Foreground"), m_cDNG_FgColor.GetAsString(wxC2S_HTML_SYNTAX));
 
   node->SetNext(new wxXmlNode(NULL, wxXML_ELEMENT_NODE, _T ("Transparency")));
   node = node->GetNext();
-  node->AddProperty(_T ("Value"), wxString::Format(_T ("%0d"), m_iDNG_Transparency));
+  node->AddAttribute(_T ("Value"), wxString::Format(_T ("%0d"), m_iDNG_Transparency));
 
   node->SetNext(new wxXmlNode(NULL, wxXML_ELEMENT_NODE, _T ("Modifiers")));
   node = node->GetNext();
 
   strMod = modManager.GetStringFromValue(m_modDNG1);
-  node->AddProperty(_T ("Modifier1"), strMod);
+  node->AddAttribute(_T ("Modifier1"), strMod);
 
   strMod = modManager.GetStringFromValue(m_modDNG2);
-  node->AddProperty(_T ("Modifier2"), strMod);
+  node->AddAttribute(_T ("Modifier2"), strMod);
 }
 
 void SettingsManager::ReadMiscSettings(wxXmlNode* container)
@@ -958,13 +986,13 @@ void SettingsManager::ReadMiscSettings(wxXmlNode* container)
   while (node) {
     nodName = node->GetName();
     if (nodName == _T ("MouseFollowWindow")) {
-      m_bMouseFollowWnd = (node->GetProperties()->GetValue() == _T ("True"));
+      m_bMouseFollowWnd = (node->GetAttributes()->GetValue() == _T ("True"));
     }
     else if (nodName == _T ("MouseFollowWindowOnlyWhenIn")) {
-      m_bMouseFollowOnlyWhenIn = (node->GetProperties()->GetValue() == _T ("True"));
+      m_bMouseFollowOnlyWhenIn = (node->GetAttributes()->GetValue() == _T ("True"));
     }
     else if (nodName == _T ("MinMaxCycle")) {
-      m_bMinMaxCycle = (node->GetProperties()->GetValue() == _T ("True"));
+      m_bMinMaxCycle = (node->GetAttributes()->GetValue() == _T ("True"));
     }
 
     node = node->GetNext();
@@ -976,14 +1004,14 @@ void SettingsManager::SaveMiscSettings(wxXmlNode* container)
   wxXmlNode* node;
 
   container->AddChild(node = new wxXmlNode(NULL, wxXML_ELEMENT_NODE, _T ("MouseFollowWindow")));
-  node->AddProperty(_T ("Value"), m_bMouseFollowWnd ? _T ("True") : _T ("False"));
+  node->AddAttribute(_T ("Value"), m_bMouseFollowWnd ? _T ("True") : _T ("False"));
 
   node->SetNext(new wxXmlNode(
       NULL,
       wxXML_ELEMENT_NODE,
       _T ("MouseFollowWindowOnlyWhenIn"),
       wxEmptyString,
-      new wxXmlProperty(_T ("Value"), m_bMouseFollowOnlyWhenIn ? _T ("True") : _T ("False"))));
+      new wxXmlAttribute(_T ("Value"), m_bMouseFollowOnlyWhenIn ? _T ("True") : _T ("False"))));
   node = node->GetNext();
 
   node->SetNext(
@@ -991,5 +1019,5 @@ void SettingsManager::SaveMiscSettings(wxXmlNode* container)
                     wxXML_ELEMENT_NODE,
                     _T ("MinMaxCycle"),
                     wxEmptyString,
-                    new wxXmlProperty(_T ("Value"), m_bMinMaxCycle ? _T ("True") : _T ("False"))));
+                    new wxXmlAttribute(_T ("Value"), m_bMinMaxCycle ? _T ("True") : _T ("False"))));
 }

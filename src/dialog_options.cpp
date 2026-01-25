@@ -198,7 +198,7 @@ void OptionsDialog::CreateAndFillPage_Numpad(wxNotebook* book)
                                             wxDefaultPosition,
                                             wxSize(250, -1),
                                             wxSL_HORIZONTAL | wxSL_LABELS | wxSL_AUTOTICKS);
-  p_sliderNumpadTransparency->SetTickFreq(10, 20);
+  p_sliderNumpadTransparency->SetTickFreq(10);
   p_sliderNumpadTransparency->SetValue(m_options.getNumpadTransparency());
   stbszr->Add(p_sliderNumpadTransparency, 0, wxALL | wxEXPAND, 5);
   pageszr->Add(stbszr, 0, wxALL | wxEXPAND, 5);
