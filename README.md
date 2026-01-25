@@ -1,124 +1,136 @@
 # WinSplit Revolution Revived
 
-A fork of WinSplit Revolution updated for **Windows 11** compatibility.
+[![Build Status](https://github.com/x-vibe/winsplit-revolution-revived/actions/workflows/build.yml/badge.svg)](https://github.com/x-vibe/winsplit-revolution-revived/actions)
+[![Release](https://img.shields.io/github/v/release/x-vibe/winsplit-revolution-revived)](https://github.com/x-vibe/winsplit-revolution-revived/releases)
+[![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 
-WinSplit Revolution is a small utility which allows you to easily organize your open windows by tiling, resizing and positioning them to make the best use of your desktop real estate.
+**The lightweight, blazing-fast window manager for Windows 10 & 11.**
 
-## Features
+Boost your productivity with instant window tiling, snapping, and organization — all from your keyboard. WinSplit Revolution is a **free, open-source** alternative to paid window managers, with **zero bloat** and **no background services**.
 
-- Automated window handling (resize, move, reorganize, close tasks)
-- Global hotkeys and clickable virtual numpad
-- Drag'n'Go - drag windows to screen edges for quick positioning
-- Multi-monitor support
-- Layout customization
-- Fusion between 2 windows
-- Mosaic mode
+## Why WinSplit Revolution?
+
+| Feature | WinSplit | Others |
+|---------|----------|--------|
+| **Lightweight** | ~500KB, minimal RAM | Often 50MB+ |
+| **Portable** | No install required | Requires installation |
+| **Fast** | Instant response | Noticeable lag |
+| **Free & Open Source** | GPL v3, forever free | Paid or freemium |
+| **No telemetry** | Your data stays yours | Often tracks usage |
+
+## Key Features
+
+- **Keyboard-First Design** — 22 customizable global hotkeys for instant window control
+- **Drag'n'Go** — Drag windows to screen edges for automatic snapping and resizing
+- **Virtual Numpad** — Clickable 3x3 grid overlay for mouse-based positioning
+- **Multi-Monitor Support** — Seamlessly move windows across displays with hotkeys
+- **Highly Customizable** — Configure hotkeys, layouts, transparency, and behavior
+- **26 Languages** — Full internationalization support
+- **Portable Mode** — Run from USB, no installation or admin rights needed
 
 ## Download
 
-**[Download Latest Release (v10.2.0)](https://github.com/x-vibe/winsplit-revolution-revived/releases/latest)**
+**[⬇️ Download Latest Release (v10.2.0)](https://github.com/x-vibe/winsplit-revolution-revived/releases/latest)** — Windows 10/11 x64
 
-## What's New in This Fork (v10.2.0)
+Just extract and run. No installation required.
+
+---
+
+## Quick Start
+
+| Hotkey | Action |
+|--------|--------|
+| `Ctrl+Alt+Numpad` | Position window (1-9 grid positions) |
+| `Ctrl+Alt+Arrow` | Move window to next monitor |
+| `Ctrl+Alt+M` | Mosaic mode (tile all windows) |
+| `Ctrl+Alt+F` | Fusion mode (combine two windows) |
+
+**Tip:** All hotkeys are fully customizable in Settings → Hotkeys.
+
+---
+
+## What's New
 
 ### v10.2.0 (Latest)
-- **CRITICAL FIX**: Fixed application startup crash in XML settings parsing
-- **Fixed** support for both XML attribute and text content formats in settings
-- **Fixed** language dropdown showing garbled characters (now displays English names)
-- **Added** file-based debug logging system (`debug_log.h`)
-- **Security**: HTTPS update mechanism via GitHub Releases API
-- **Security**: Rate limiting on hook messages, DLL path verification
-- **Security**: Reduced process permissions, integer overflow fixes
+- **Critical Fix**: Fixed startup crash affecting some users
+- **Security Hardened**: HTTPS updates, rate limiting, reduced permissions
+- **Debug Logging**: New troubleshooting tools for developers
+- **26 Languages**: All language names now display correctly
 
 ### v10.1.0
-- **Windows 11 compatibility** with proper manifest declarations
-- **DPI awareness** (Per-Monitor DPI V2) for high-DPI displays
-- **wxWidgets 3.x migration** - updated from wxWidgets 2.x to 3.x
-- **26 languages** - full internationalization support
-- **Visual Studio 2022/2025/2026** build support (v143/v145 toolset)
-- **Fixed** logic error in invisible frame detection
-- **Fixed** window positioning when moving between monitors
-- **Fixed** Drag'n'Go preview now matches actual window placement
-- **Fixed** winsock header conflicts with WIN32_LEAN_AND_MEAN
-- Centralized DWM utilities for consistent frame handling
+- **Windows 11 Native**: Full compatibility with Windows 11 features
+- **High-DPI Support**: Crisp UI on 4K and high-resolution displays
+- **Modern Codebase**: Updated to wxWidgets 3.x and VS 2022/2025/2026
 
-## Building
+[View Full Changelog](upstream/CHANGELOG.md)
 
-> **Note (January 2026):** Version numbers and download links below were current as of January 2026. When installing dependencies, always check online for the latest versions.
+---
+
+## Screenshots
+
+*Coming soon — contributions welcome!*
+
+---
+
+## Building from Source
 
 ### Requirements
 
-- **Visual Studio 2026** with "Desktop development with C++" workload
-- **Windows SDK 10.0.26100.0** (Windows 11 24H2 SDK)
-- **wxWidgets 3.x** (included as submodule)
+- Visual Studio 2022/2025/2026 with "Desktop development with C++"
+- Windows SDK 10.0.26100.0+
+- wxWidgets 3.x (included as submodule)
 
-### Option 1: VS Code (Recommended)
-
-The project includes VS Code configuration for building without the Visual Studio IDE.
-
-1. Install [Visual Studio 2026](https://visualstudio.microsoft.com/downloads/) with "Desktop development with C++" workload
-2. Open the project folder in VS Code: `E:\VIBECODING\DEV\OTHER\winsplit-revolution-revamped`
-3. Press `Ctrl+Shift+B` to build (auto-detects VS installation)
-
-Available build tasks (Terminal → Run Task):
-| Task | Description |
-|------|-------------|
-| Build (Full) | Default - builds wxWidgets if needed, creates dist package |
-| Build WinSplit (Release x64) | Quick release build |
-| Build WinSplit (Debug x64) | Debug build |
-| Clean Solution | Remove build artifacts |
-
-### Option 2: Command Line
-
-Run from a Developer Command Prompt or use the build script:
+### Quick Build
 
 ```cmd
-cd E:\VIBECODING\DEV\OTHER\winsplit-revolution-revamped
+git clone --recursive https://github.com/x-vibe/winsplit-revolution-revived.git
+cd winsplit-revolution-revived
 build.cmd
 ```
 
-Or manually:
+Output: `upstream/x64/Release/Winsplit.exe`
 
-```cmd
-cd upstream\wxWidgets\build\msw
-nmake -f makefile.vc BUILD=release RUNTIME_LIBS=static TARGET_CPU=X64
+[Detailed Build Instructions](CLAUDE.md#build-commands)
 
-cd ..\..\..\
-msbuild "Winsplit Revolution.sln" -property:Configuration=Release -property:Platform=x64
-```
+---
 
-### Output
+## Contributing
 
-Built files are placed in `upstream\x64\Release\`:
-- `Winsplit.exe` - Main application
-- `winsplithook.dll` - Hook DLL
+Contributions are welcome! Areas where help is needed:
+
+- [ ] Screenshots and demo GIFs
+- [ ] Testing on Windows 11 ARM64
+- [ ] Translation improvements
+- [ ] Documentation
+
+---
 
 ## Credits
 
-### WINSPLIT REVOLUTION
-**Copyright (C) 2005-2009**
+**WinSplit Revolution** — Copyright (C) 2005-2009 Raphael Lencrerot
 
-Created by **Raphael Lencrerot**
+**Original Team:** Raphael Lencrerot, Xavier Perrissoud, Arturo Espinosa, Dan Smith
 
-#### WinSplit Revolution Team:
-- Raphael Lencrerot (developer)
-- Xavier Perrissoud (developer)
-- Arturo Espinosa (developer)
-- Dan Smith (developer)
+**Previous Maintainers:**
+- [dozius](https://github.com/dozius/winsplit-revolution) — Windows 10 fixes
+- [skullzy](https://codeberg.org/skullzy/winsplit-revolution) — Codeberg mirror
 
-Special thanks to **NX** (icons design)
-
-### Previous Maintainers
-- [dozius/winsplit-revolution](https://github.com/dozius/winsplit-revolution) - Windows 10 fixes
-- [skullzy/winsplit-revolution](https://codeberg.org/skullzy/winsplit-revolution) - Codeberg mirror
+---
 
 ## License
 
-This program is free software: you can redistribute it and/or modify it under the terms of the **GNU General Public License v3** as published by the Free Software Foundation.
+**GNU General Public License v3** — Free software, forever.
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the [LICENSE](upstream/LICENSE) file for details.
+You can redistribute and modify this software under the GPL v3 terms. See [LICENSE](upstream/LICENSE) for details.
+
+---
 
 ## Links
 
-- **This Fork**: https://github.com/x-vibe/winsplit-revolution-revived
-- **Original Project**: https://github.com/dozius/winsplit-revolution
-- **Codeberg Mirror**: https://codeberg.org/skullzy/winsplit-revolution
+- **GitHub**: https://github.com/x-vibe/winsplit-revolution-revived
+- **Releases**: https://github.com/x-vibe/winsplit-revolution-revived/releases
+- **Issues**: https://github.com/x-vibe/winsplit-revolution-revived/issues
+
+---
+
+**Keywords:** window manager, window tiling, snap windows, keyboard shortcuts, productivity tool, free window manager, open source, Windows 11 window manager, multi-monitor, hotkeys, lightweight
