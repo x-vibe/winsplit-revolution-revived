@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{B4D7B6B0-4DDE-489E-82A9-AB0A5E169E13}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>
+    </LinkIncremental>
+    <IntDir>$(SolutionDir)$(Platform)\$(Configuration)\build\winsplit\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;wxUSE_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>wxWidgets/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;wxUSE_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>wxWidgets/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>wxWidgets/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)wxWidgets\include\msvc;$(SolutionDir)wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;UNICODE;_UNICODE;__WXMSW__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);dwmapi.lib;mincore.lib;rpcrt4.lib;comctl32.lib;winsplithook.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)wxWidgets\lib\vc_x64_lib%(AdditionalLibraryDirectories);$(OutDir)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\auto_placement.cpp" />
+    <ClCompile Include="src\dialog_about.cpp" />
+    <ClCompile Include="src\dwm_utils.cpp" />
+    <ClCompile Include="src\dialog_activewndtools.cpp" />
+    <ClCompile Include="src\dialog_download.cpp" />
+    <ClCompile Include="src\dialog_fusion.cpp" />
+    <ClCompile Include="src\dialog_hotkeys.cpp" />
+    <ClCompile Include="src\dialog_layout.cpp" />
+    <ClCompile Include="src\dialog_options.cpp" />
+    <ClCompile Include="src\dialog_selectsettings.cpp" />
+    <ClCompile Include="src\dialog_warnhotkeys.cpp" />
+    <ClCompile Include="src\functions_resize.cpp" />
+    <ClCompile Include="src\functions_special.cpp" />
+    <ClCompile Include="src\frame_hook.cpp" />
+    <ClCompile Include="src\frame_virtualnumpad.cpp" />
+    <ClCompile Include="src\hotkeys_manager.cpp" />
+    <ClCompile Include="src\layout_manager.cpp" />
+    <ClCompile Include="src\layout_screens.cpp" />
+    <ClCompile Include="src\list_windows.cpp" />
+    <ClCompile Include="src\lmpreview.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\multimonitor_move.cpp" />
+    <ClCompile Include="src\settingsmanager.cpp" />
+    <ClCompile Include="src\tray_icon.cpp" />
+    <ClCompile Include="src\update_thread.cpp" />
+    <ClCompile Include="src\virtual_key_manager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\auto_placement.h" />
+    <ClInclude Include="src\dialog_about.h" />
+    <ClInclude Include="src\dwm_utils.h" />
+    <ClInclude Include="src\dialog_activewndtools.h" />
+    <ClInclude Include="src\dialog_download.h" />
+    <ClInclude Include="src\dialog_fusion.h" />
+    <ClInclude Include="src\dialog_hotkeys.h" />
+    <ClInclude Include="src\dialog_layout.h" />
+    <ClInclude Include="src\dialog_options.h" />
+    <ClInclude Include="src\dialog_selectsettings.h" />
+    <ClInclude Include="src\dialog_warnhotkeys.h" />
+    <ClInclude Include="src\direction.h" />
+    <ClInclude Include="src\functions_resize.h" />
+    <ClInclude Include="src\functions_special.h" />
+    <ClInclude Include="src\frame_hook.h" />
+    <ClInclude Include="src\frame_virtualnumpad.h" />
+    <ClInclude Include="src\hook.h" />
+    <ClInclude Include="src\hotkeys_manager.h" />
+    <ClInclude Include="src\hotkey_number.h" />
+    <ClInclude Include="src\layout_manager.h" />
+    <ClInclude Include="src\layout_screens.h" />
+    <ClInclude Include="src\list_windows.h" />
+    <ClInclude Include="src\lmpreview.h" />
+    <ClInclude Include="src\main.h" />
+    <ClInclude Include="src\minimize_restore.h" />
+    <ClInclude Include="src\multimonitor_move.h" />
+    <ClInclude Include="src\resource.h" />
+    <ClInclude Include="src\settingsmanager.h" />
+    <ClInclude Include="src\tray_icon.h" />
+    <ClInclude Include="src\update_thread.h" />
+    <ClInclude Include="src\virtual_key_manager.h" />
+    <ClInclude Include="src\wx_include.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src\ressource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\winsplit.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="images\winsplit.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
