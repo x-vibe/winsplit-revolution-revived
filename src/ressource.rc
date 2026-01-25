@@ -32,8 +32,8 @@ A                       ICON                    "../images/winsplit.ico"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 10,0,2,0
- PRODUCTVERSION 10,0,2,0
+ FILEVERSION 10,1,0,0
+ PRODUCTVERSION 10,1,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -49,12 +49,12 @@ BEGIN
         BLOCK "000904b0"
         BEGIN
             VALUE "FileDescription", "WinSplit Revolution"
-            VALUE "FileVersion", "10.0.2.0"
+            VALUE "FileVersion", "10.1.0.0"
             VALUE "InternalName", "WinSplit"
             VALUE "LegalCopyright", "Copyright (c) 2009"
             VALUE "OriginalFilename", "WinSplit.exe"
             VALUE "ProductName", "WinSplit Revolution"
-            VALUE "ProductVersion", "10.0.2.0"
+            VALUE "ProductVersion", "10.1.0.0"
         END
     END
     BLOCK "VarFileInfo"

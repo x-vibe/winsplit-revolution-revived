@@ -20,7 +20,7 @@ Var InstallInProcess
 !include "nsDialogs.nsh"
 !include "WinMessages.nsh"
 
-!define PRODUCT_VERSION "10.0.2"
+!define PRODUCT_VERSION "10.1.0"
 !define PRODUCT_PUBLISHER "WinSplit Revolution Contributors"
 !define PRODUCT_WEB_SITE "https://github.com/x-vibe/winsplit-revolution-revived"
 !define CHANGELOG_LINK "https://github.com/x-vibe/winsplit-revolution-revived/blob/main/upstream/CHANGELOG.md"
