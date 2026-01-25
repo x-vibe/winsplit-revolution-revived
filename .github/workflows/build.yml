@@ -1,0 +1,167 @@
+name: Build WinSplit Revolution
+
+on:
+  push:
+    branches: [main, develop]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  SOLUTION_FILE: upstream/Winsplit Revolution.sln
+  BUILD_CONFIGURATION: Release
+  BUILD_PLATFORM: x64
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Setup Visual Studio Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: Cache wxWidgets build
+      id: cache-wxwidgets
+      uses: actions/cache@v4
+      with:
+        path: upstream/wxWidgets/lib/vc_x64_lib
+        key: wxwidgets-${{ runner.os }}-x64-release-static-${{ hashFiles('upstream/wxWidgets/build/msw/makefile.vc') }}
+        restore-keys: |
+          wxwidgets-${{ runner.os }}-x64-release-static-
+
+    - name: Build wxWidgets
+      if: steps.cache-wxwidgets.outputs.cache-hit != 'true'
+      working-directory: upstream/wxWidgets/build/msw
+      run: |
+        nmake -f makefile.vc BUILD=release RUNTIME_LIBS=static TARGET_CPU=X64
+
+    - name: Build WinSplit Revolution
+      run: |
+        msbuild "${{ env.SOLUTION_FILE }}" /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:Platform=${{ env.BUILD_PLATFORM }} /p:PlatformToolset=v143 /m
+
+    - name: Verify build outputs
+      run: |
+        if (!(Test-Path "upstream/x64/Release/Winsplit.exe")) {
+          Write-Error "Winsplit.exe not found!"
+          exit 1
+        }
+        if (!(Test-Path "upstream/x64/Release/winsplithook.dll")) {
+          Write-Error "winsplithook.dll not found!"
+          exit 1
+        }
+        Write-Host "Build outputs verified successfully"
+        Get-ChildItem "upstream/x64/Release/"
+
+    - name: Prepare bin directory for packaging
+      run: |
+        # Ensure bin directory exists
+        New-Item -ItemType Directory -Force -Path "upstream/bin"
+
+        # Copy built files to bin directory (expected by NSIS)
+        Copy-Item "upstream/x64/Release/Winsplit.exe" "upstream/bin/" -Force
+        Copy-Item "upstream/x64/Release/winsplithook.dll" "upstream/bin/" -Force
+
+        # Verify bin directory contents
+        Write-Host "Bin directory contents:"
+        Get-ChildItem "upstream/bin/" -Recurse
+
+    - name: Create portable ZIP
+      run: |
+        $version = "10.0.2"
+        $zipName = "WinSplit-Revolution-v$version-portable-x64.zip"
+
+        # Create portable directory structure
+        New-Item -ItemType Directory -Force -Path "portable/WinSplit Revolution"
+
+        # Copy main files
+        Copy-Item "upstream/bin/Winsplit.exe" "portable/WinSplit Revolution/"
+        Copy-Item "upstream/bin/winsplithook.dll" "portable/WinSplit Revolution/"
+
+        # Copy resources
+        Copy-Item "upstream/bin/images" "portable/WinSplit Revolution/" -Recurse
+        Copy-Item "upstream/bin/languages" "portable/WinSplit Revolution/" -Recurse
+
+        # Create portable mode marker
+        New-Item -ItemType File -Path "portable/WinSplit Revolution/portable.txt" -Value "This file enables portable mode. Settings will be stored in this directory."
+
+        # Copy documentation
+        Copy-Item "upstream/README.md" "portable/WinSplit Revolution/"
+        Copy-Item "upstream/LICENSE" "portable/WinSplit Revolution/"
+        Copy-Item "upstream/CHANGELOG.md" "portable/WinSplit Revolution/"
+
+        # Create ZIP
+        Compress-Archive -Path "portable/WinSplit Revolution" -DestinationPath $zipName -Force
+
+        Write-Host "Created $zipName"
+        Get-ChildItem $zipName
+
+    - name: Install NSIS
+      run: |
+        choco install nsis -y
+
+    - name: Build NSIS Installer
+      working-directory: upstream/nsis
+      run: |
+        # Update version in NSI file
+        (Get-Content "Winsplit-SetupScript.nsi") -replace 'PRODUCT_VERSION "9.02"', 'PRODUCT_VERSION "10.0.2"' | Set-Content "Winsplit-SetupScript.nsi"
+
+        # Build installer
+        & "C:\Program Files (x86)\NSIS\makensis.exe" "Winsplit-SetupScript.nsi"
+
+        # Rename output to include architecture
+        if (Test-Path "WinSplit-Revolution-v10.0.2.exe") {
+          Rename-Item "WinSplit-Revolution-v10.0.2.exe" "WinSplit-Revolution-v10.0.2-setup-x64.exe"
+        }
+
+    - name: Upload portable ZIP artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: WinSplit-portable-x64
+        path: WinSplit-Revolution-v*-portable-x64.zip
+        if-no-files-found: error
+
+    - name: Upload installer artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: WinSplit-installer-x64
+        path: upstream/nsis/WinSplit-Revolution-v*-setup-x64.exe
+        if-no-files-found: warn
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: Display downloaded files
+      run: |
+        echo "Downloaded artifacts:"
+        find artifacts -type f
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          artifacts/**/*.zip
+          artifacts/**/*.exe
+        draft: true
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

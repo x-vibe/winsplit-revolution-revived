@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug WinSplit",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/upstream/x64/Debug/Winsplit.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/upstream/x64/Debug",
+            "environment": [],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Release WinSplit",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/upstream/x64/Release/Winsplit.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/upstream/x64/Release",
+            "environment": [],
+            "console": "integratedTerminal"
+        }
+    ]
+}

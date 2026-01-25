@@ -1,0 +1,87 @@
+{
+    "version": "2.0.0",
+    "options": {
+        "shell": {
+            "executable": "cmd.exe",
+            "args": ["/d", "/c"]
+        }
+    },
+    "tasks": [
+        {
+            "label": "Build (Full)",
+            "type": "shell",
+            "command": "cd /d \"${workspaceFolder}\" && build.cmd",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            },
+            "problemMatcher": "$msCompile",
+            "detail": "Run full build script (builds wxWidgets if needed, creates dist package)"
+        },
+        {
+            "label": "Build wxWidgets (Release x64)",
+            "type": "shell",
+            "command": "for /f \"usebackq tokens=*\" %i in (`\"%ProgramFiles(x86)%\\Microsoft Visual Studio\\Installer\\vswhere.exe\" -latest -products * -property installationPath`) do call \"%i\\VC\\Auxiliary\\Build\\vcvars64.bat\" && cd /d \"${workspaceFolder}\\upstream\\wxWidgets\\build\\msw\" && nmake -f makefile.vc BUILD=release RUNTIME_LIBS=static TARGET_CPU=X64",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": "$msCompile",
+            "detail": "Build wxWidgets static libraries (first time setup)"
+        },
+        {
+            "label": "Build WinSplit (Release x64)",
+            "type": "shell",
+            "command": "for /f \"usebackq tokens=*\" %i in (`\"%ProgramFiles(x86)%\\Microsoft Visual Studio\\Installer\\vswhere.exe\" -latest -products * -property installationPath`) do call \"%i\\VC\\Auxiliary\\Build\\vcvars64.bat\" && cd /d \"${workspaceFolder}\\upstream\" && msbuild \"Winsplit Revolution.sln\" -p:Configuration=Release -p:Platform=x64 -m",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": "$msCompile",
+            "detail": "Build WinSplit.exe and winsplithook.dll (Release x64)"
+        },
+        {
+            "label": "Build WinSplit (Debug x64)",
+            "type": "shell",
+            "command": "for /f \"usebackq tokens=*\" %i in (`\"%ProgramFiles(x86)%\\Microsoft Visual Studio\\Installer\\vswhere.exe\" -latest -products * -property installationPath`) do call \"%i\\VC\\Auxiliary\\Build\\vcvars64.bat\" && cd /d \"${workspaceFolder}\\upstream\" && msbuild \"Winsplit Revolution.sln\" -p:Configuration=Debug -p:Platform=x64 -m",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": "$msCompile",
+            "detail": "Build WinSplit.exe and winsplithook.dll (Debug x64)"
+        },
+        {
+            "label": "Clean Solution",
+            "type": "shell",
+            "command": "for /f \"usebackq tokens=*\" %i in (`\"%ProgramFiles(x86)%\\Microsoft Visual Studio\\Installer\\vswhere.exe\" -latest -products * -property installationPath`) do call \"%i\\VC\\Auxiliary\\Build\\vcvars64.bat\" && cd /d \"${workspaceFolder}\\upstream\" && msbuild \"Winsplit Revolution.sln\" -t:Clean -p:Configuration=Release -p:Platform=x64",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": "$msCompile",
+            "detail": "Clean all build artifacts"
+        },
+        {
+            "label": "Rebuild WinSplit (Release x64)",
+            "type": "shell",
+            "command": "for /f \"usebackq tokens=*\" %i in (`\"%ProgramFiles(x86)%\\Microsoft Visual Studio\\Installer\\vswhere.exe\" -latest -products * -property installationPath`) do call \"%i\\VC\\Auxiliary\\Build\\vcvars64.bat\" && cd /d \"${workspaceFolder}\\upstream\" && msbuild \"Winsplit Revolution.sln\" -t:Rebuild -p:Configuration=Release -p:Platform=x64 -m",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": "$msCompile",
+            "detail": "Clean and rebuild WinSplit (Release x64)"
+        }
+    ]
+}

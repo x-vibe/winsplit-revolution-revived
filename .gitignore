@@ -1,0 +1,40 @@
+# wxWidgets submodule (clone separately)
+upstream/wxWidgets/
+
+# Build artifacts
+dist/
+*.zip
+*.exe
+*.dll
+*.pdb
+*.lib
+*.obj
+*.log
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.ncb
+*.aps
+x64/
+Debug/
+Release/
+
+# Build tools (downloaded)
+gettext-tools/
+gettext-tools.zip
+
+# IDE
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
