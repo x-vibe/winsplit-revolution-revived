@@ -44,33 +44,39 @@ FrameHook::FrameHook(wxWindow* parent, wxWindowID id, const wxString& title, con
 
 FrameHook::~FrameHook()
 {
-  StopAllHook();
+  // 1. Stop the drag timer first to prevent callbacks during cleanup
+  if (m_timer.IsRunning())
+    m_timer.Stop();
 
-  // Security: Get DLL handle with full path verification to prevent DLL hijacking
+  // 2. Hide and destroy the preview panel before unhooking
+  if (p_panel) {
+    p_panel->Show(false);
+    p_panel->Destroy();
+    p_panel = NULL;
+  }
+
+  // 3. Uninstall hooks (clears shared hook handles in the DLL)
+  StopAllHook();
+  m_isInstalled = false;
+
+  // 4. Unload hook DLL with path verification
   wchar_t exePath[MAX_PATH] = {0};
   wchar_t expectedDllPath[MAX_PATH] = {0};
 
   if (GetModuleFileNameW(NULL, exePath, MAX_PATH)) {
-    // Get directory of EXE
     PathRemoveFileSpecW(exePath);
     swprintf_s(expectedDllPath, MAX_PATH, L"%s\\winsplithook.dll", exePath);
 
-    // Only unload if loaded from our expected directory
     HMODULE module_dll = GetModuleHandleW(L"winsplithook.dll");
     if (module_dll) {
       wchar_t loadedPath[MAX_PATH] = {0};
       if (GetModuleFileNameW(module_dll, loadedPath, MAX_PATH)) {
-        // Verify the loaded DLL is from our application directory
         if (_wcsicmp(loadedPath, expectedDllPath) == 0) {
           FreeLibrary(module_dll);
         }
-        // If paths don't match, don't unload - it may be a hijacked DLL
       }
     }
   }
-
-  p_panel->Show(false);
-  p_panel->Destroy();
 }
 
 void FrameHook::SetHook()

@@ -748,6 +748,26 @@ Master task list for the Windows 11 compatibility update and security hardening.
 
 ---
 
+## 22. v10.2.2 Enhancement Requests & Bug Fixes (10 tasks)
+
+### 22.1 BUG: Portable Mode Settings Not Saved Locally
+
+- [ ] 526. Investigate portable.txt detection logic in settings save/load code
+- [ ] 527. Verify wxWidgets 3.x `wxStandardPaths::GetExecutablePath()` returns correct directory for portable detection
+- [ ] 528. Fix settings path resolution to write `hotkeys.xml` and `layout.xml` next to `Winsplit.exe` when `portable.txt` is present
+- [ ] 529. Ensure all other config files (if any) also respect portable mode
+- [ ] 530. Add unit test to verify portable mode writes settings to application directory, not `%APPDATA%`
+
+### 22.2 ENH: Modernize Dialog Windows with Windows 11 Design Language
+
+- [ ] 531. Replace legacy `MessageBox` calls with `TaskDialog` (Vista+) for richer notifications with icons, expandable details, and command links
+- [ ] 532. Verify application manifest activates ComCtl32 v6 for modern common control rendering across all dialogs (Options, Hotkeys, Layout, About, Active Window Tools)
+- [ ] 533. Update dialog layouts to follow Windows 11 UX guidelines (increased padding, Segoe UI Variable font, cleaner grouping, rounded corners)
+- [ ] 534. Add dark mode support for all dialogs and popup windows, respecting system light/dark preference
+- [ ] 535. Extend Fluent UI System Icons usage (already partially integrated in v10.2.0) to all dialog windows, not just menus
+
+---
+
 ## Summary
 
 | Category | Total | Complete | Pending |
@@ -773,7 +793,8 @@ Master task list for the Windows 11 compatibility update and security hardening.
 | 19. Race Conditions | 20 | 0 | 20 |
 | 20. CI/CD Environments | 20 | 0 | 20 |
 | 21. Future Features | 10 | 0 | 10 |
-| **TOTAL** | **515** | **75** | **440** |
+| 22. v10.2.2 Enhancements & Bugs | 10 | 0 | 10 |
+| **TOTAL** | **525** | **75** | **450** |
 
 **v10.1.0 Released:** 2026-01-25 - First public release with Windows 11 support
 
@@ -799,6 +820,10 @@ Master task list for the Windows 11 compatibility update and security hardening.
 - Future Features (#516-525)
 - ARM64 support (#302-307)
 
+### v10.2.2 Targeted
+- Portable mode bug fix (#526-530) — **Bug**, settings not saved locally
+- Modern dialog UI (#531-535) — **Enhancement**, Windows 11 design language
+
 ---
 
-*Last Updated: January 25, 2026*
+*Last Updated: February 27, 2026*

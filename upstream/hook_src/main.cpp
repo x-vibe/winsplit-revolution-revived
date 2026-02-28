@@ -189,6 +189,25 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID lpRe
           (GLWA_FUNC)GetProcAddress(hUser32, "GetLayeredWindowAttributes");
     }
   }
+  else if (fdwReason == DLL_PROCESS_DETACH) {
+    // Safety net: unhook if not already done.
+    // Only safe for normal FreeLibrary unload (lpReserved == NULL).
+    // During process termination (lpReserved != NULL), other DLLs may already
+    // be unloaded and calling UnhookWindowsHookEx is unsafe.
+    if (lpReserved == NULL) {
+      if (m_hookMouse) {
+        UnhookWindowsHookEx(m_hookMouse);
+        m_hookMouse = NULL;
+      }
+      if (m_hookCBT) {
+        UnhookWindowsHookEx(m_hookCBT);
+        m_hookCBT = NULL;
+      }
+    }
+    // Always clear shared HWND so hook callbacks in other processes stop posting
+    hwndWinSplitFrame = NULL;
+    m_hDllInstance = NULL;
+  }
 
   return TRUE;
 }

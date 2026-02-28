@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed memory error on Windows 11 shutdown caused by incomplete resource cleanup
+  - Hotkeys now properly unregistered during system shutdown (not just manual quit via tray menu)
+  - Timer stopped before hook cleanup to prevent use-after-free callbacks
+  - Update thread properly handled during shutdown (joinable thread cleanup)
+  - `TrayIcon` destructor now performs full resource cleanup instead of being empty
+  - Added idempotent `Cleanup()` method to prevent double-free on multiple exit paths
+
+### Added
+
+- `WM_QUERYENDSESSION` handler to consent to Windows shutdown gracefully
+- `DLL_PROCESS_DETACH` safety net in hook DLL for hook cleanup on unload
+- Shutdown and cleanup test suite (`tests/shutdown/gtest_shutdown_cleanup.cpp`)
+  - Smoke tests: process/window existence, DLL loading, resource snapshots
+  - E2E tests: hotkey availability, hook message handling, session end handling
+  - Edge case tests: message flooding, cancelled shutdowns, handle leak detection
+  - Memory tests: resource baselines, idle stability
+  - Destructive tests (disabled by default): full WM_CLOSE and WM_ENDSESSION exit verification
+
 ---
 
 ## [10.2.0] - 2026-01-25

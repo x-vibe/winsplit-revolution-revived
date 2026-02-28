@@ -32,7 +32,7 @@ The project includes `.vscode/` configuration for building directly from VS Code
 - VS Code with C/C++ extension (optional)
 
 **To build:**
-1. Open project folder in VS Code: `E:\VIBECODING\DEV\OTHER\winsplit-revolution-revamped`
+1. Open the project folder in VS Code
 2. Press `Ctrl+Shift+B` for default build (runs `build.cmd`)
 3. Or use Terminal → Run Task for specific tasks:
    - `Build (Full)` - Default, builds everything including wxWidgets if needed

@@ -24,6 +24,7 @@ enum Identifiers_tray {
 class TrayIcon : public wxTaskBarIcon {
 private:
   bool m_autoStart;
+  bool m_cleanedUp;
   VirtualNumpad* p_virtNumpad;
   HotkeysManager* p_hotkeys;
   SettingsManager& m_options;
@@ -61,6 +62,7 @@ public:
   void SetHotkeys();
   void ShowOrHideVirtualNumpad();
   void OnLeftClick(wxTaskBarIconEvent& event);
+  void Cleanup();
   void SaveOnExit();
   void ShowIcon();
 

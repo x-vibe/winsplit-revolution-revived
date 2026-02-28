@@ -1,4 +1,4 @@
-$msgfmt = "E:\VIBECODING\DEV\OTHER\winsplit-revolution-revamped\gettext-tools\bin\msgfmt.exe"
+$msgfmt = Join-Path $PSScriptRoot "gettext-tools\bin\msgfmt.exe"
 $langDir = Join-Path $PSScriptRoot "upstream\bin\languages"
 
 Get-ChildItem -Path $langDir -Directory | ForEach-Object {

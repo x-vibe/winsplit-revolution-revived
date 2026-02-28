@@ -20,6 +20,7 @@ private:
 
   wxSingleInstanceChecker* p_checker;
 
+  void OnQueryEndSession(wxCloseEvent& event);
   void OnCloseSession(wxCloseEvent& event);
 
 public:

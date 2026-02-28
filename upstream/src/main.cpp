@@ -38,6 +38,7 @@ namespace {
 using namespace std;
 
 BEGIN_EVENT_TABLE(WinSplitApp, wxApp)
+EVT_QUERY_END_SESSION(WinSplitApp::OnQueryEndSession)
 EVT_END_SESSION(WinSplitApp::OnCloseSession)
 END_EVENT_TABLE()
 
@@ -95,9 +96,18 @@ bool WinSplitApp::OnInit()
   return true;
 }
 
+void WinSplitApp::OnQueryEndSession(wxCloseEvent& event)
+{
+  // Allow the session to end - we will clean up in OnCloseSession
+  event.Skip(true);
+}
+
 void WinSplitApp::OnCloseSession(wxCloseEvent& event)
 {
-  p_tray->SaveOnExit();
+  // System is shutting down - perform full cleanup now
+  if (p_tray) {
+    p_tray->Cleanup();
+  }
 
   event.Skip();
 }
@@ -105,7 +115,12 @@ void WinSplitApp::OnCloseSession(wxCloseEvent& event)
 int WinSplitApp::OnExit()
 {
   delete p_frameHook;
+  p_frameHook = NULL;
+
+  // TrayIcon::~TrayIcon() calls Cleanup() which is safe to call multiple times.
+  // If OnCloseSession or OnMenuClickQuit already ran, Cleanup() will be a no-op.
   delete p_tray;
+  p_tray = NULL;
 
   // If the settings specify it, delete any temporary files from previous screen shots
   SettingsManager& options = SettingsManager::Get();
@@ -115,6 +130,7 @@ int WinSplitApp::OnExit()
   SettingsManager::Kill();
   // Destroy wxSingleInstanceChecker
   delete p_checker;
+  p_checker = NULL;
 
   return wxApp::OnExit();
 }

@@ -45,6 +45,7 @@ END_EVENT_TABLE()
 
 TrayIcon::TrayIcon()
     : m_options(SettingsManager::Get())
+    , m_cleanedUp(false)
 {
   ReadRegisterAutoStart();
   SetIcon(wxIcon(icone_xpm), _T ("WinSplit Revolution ") + wxGetApp().GetVersion());
@@ -74,7 +75,53 @@ TrayIcon::TrayIcon()
   m_timer.Start(200);
 }
 
-TrayIcon::~TrayIcon() {}
+TrayIcon::~TrayIcon()
+{
+  Cleanup();
+}
+
+void TrayIcon::Cleanup()
+{
+  if (m_cleanedUp)
+    return;
+  m_cleanedUp = true;
+
+  // 1. Stop timer first to prevent OnTimer firing during cleanup
+  m_timer.Stop();
+
+  // 2. Stop and delete hotkeys manager
+  if (p_hotkeys) {
+    p_hotkeys->Stop();
+    delete p_hotkeys;
+    p_hotkeys = NULL;
+  }
+
+  // 3. Handle update thread (joinable wxThread)
+  if (p_updateThread) {
+    if (!p_updateThread->IsRunning()) {
+      // Thread finished - properly join and delete
+      p_updateThread->Wait();
+      delete p_updateThread;
+    }
+    // If still running during shutdown, the OS will clean up on process exit.
+    // We can't wait indefinitely because the thread does blocking network I/O
+    // and doesn't check TestDestroy().
+    p_updateThread = NULL;
+  }
+
+  // 4. Save settings and destroy numpad
+  SaveOnExit();
+  if (p_virtNumpad) {
+    p_virtNumpad->Destroy();
+    p_virtNumpad = NULL;
+  }
+
+  // 5. Remove tray icon
+  RemoveIcon();
+
+  // 6. Delete layout manager singleton
+  LayoutManager::DeleteInstance();
+}
 
 void TrayIcon::LoadImages()
 {
@@ -203,14 +250,7 @@ void TrayIcon::SaveOnExit()
 
 void TrayIcon::OnMenuClickQuit(wxCommandEvent& event)
 {
-  if (p_hotkeys->Stop())
-    delete p_hotkeys;
-
-  SaveOnExit();
-  p_virtNumpad->Destroy();
-  RemoveIcon();
-  LayoutManager::DeleteInstance();
-
+  Cleanup();
   wxExit();
 }
 

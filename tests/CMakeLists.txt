@@ -86,6 +86,15 @@ target_link_libraries(stress_tests PRIVATE GTest::gtest_main ${WIN_LIBS})
 target_include_directories(stress_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # ============================================================
+# Shutdown & Cleanup Tests (using Google Test)
+# ============================================================
+add_executable(shutdown_tests
+    shutdown/gtest_shutdown_cleanup.cpp
+)
+target_link_libraries(shutdown_tests PRIVATE GTest::gtest_main ${WIN_LIBS})
+target_include_directories(shutdown_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# ============================================================
 # Test Utilities
 # ============================================================
 add_executable(mock_window tools/mock_window.cpp)
@@ -100,6 +109,7 @@ target_link_libraries(message_spoofer PRIVATE user32.lib kernel32.lib)
 include(GoogleTest)
 gtest_discover_tests(security_tests)
 gtest_discover_tests(stress_tests)
+gtest_discover_tests(shutdown_tests)
 
 include(Catch)
 catch_discover_tests(functional_tests)
@@ -121,6 +131,6 @@ add_custom_target(run_functional_tests
 
 add_custom_target(run_all_tests
     COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
-    DEPENDS security_tests functional_tests stress_tests
+    DEPENDS security_tests functional_tests stress_tests shutdown_tests
     COMMENT "Running all tests..."
 )
