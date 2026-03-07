@@ -188,7 +188,7 @@ Project includes `.clang-format` in upstream directory.
 - Categories: Added, Changed, Deprecated, Removed, Fixed, Security
 - Move unreleased items to versioned section on release
 
-**Latest Release:** [v10.2.0](https://github.com/x-vibe/winsplit-revolution-revived/releases/tag/v10.2.0) (2026-01-25)
+**Latest Release:** [v10.3.0](https://github.com/x-vibe/winsplit-revolution-revived/releases/tag/v10.3.0) (2026-03-07)
 
 ---
 

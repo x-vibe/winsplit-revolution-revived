@@ -5,7 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [10.3.0] - 2026-03-07
+
+### Changed
+
+- Refreshed About dialog: replaced copyright notice with friendly open-source attribution
+  ("Maintained by x-vibe — open source under GPLv3"), removed "Built on the work of" phrasing
+  in favor of directly crediting the original team below, added "Contributions welcome!"
+- Updated LegalCopyright in exe version resource from "Copyright (c) 2009" to "GPLv3 — see LICENSE"
 
 ### Fixed
 

@@ -31,7 +31,7 @@ echo.
 :: Configuration
 set CONFIG=Release
 set PLATFORM=x64
-set VERSION=10.2.0
+set VERSION=10.3.0
 
 echo Configuration: %CONFIG%
 echo Platform: %PLATFORM%

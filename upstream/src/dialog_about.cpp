@@ -49,15 +49,15 @@ void AboutDialog::CreateControls()
   wxTextAttr attr_tmp = ptxtAbout->GetDefaultStyle();
   ptxtAbout->SetDefaultStyle(
       wxTextAttr(*wxBLACK, wxNullColour, wxFont(10, wxDEFAULT, wxFONTSTYLE_NORMAL, wxBOLD)));
-  *ptxtAbout << _T ("WINSPLIT REVOLUTION")
+  *ptxtAbout << _T ("WINSPLIT REVOLUTION REVIVED")
              << _T ("\n");
-  ;
   ptxtAbout->SetDefaultStyle(attr_tmp);
-  *ptxtAbout << _T ("Copyright (C) 2005-2009")
+  *ptxtAbout << _T ("Maintained by x-vibe \x2014 open source under GPLv3")
              << _T ("\n");
-  *ptxtAbout << _("Created by Raphael Lencrerot") << _T ("\n\n");
+  *ptxtAbout << _T ("https://github.com/x-vibe/winsplit-revolution-revived")
+             << _T ("\n\n");
 
-  *ptxtAbout << _T ("Website https://github.com/x-vibe/winsplit-revolution-revived")
+  *ptxtAbout << _T ("Updated for Windows 11. DPI-aware. Contributions welcome!")
              << _T ("\n\n");
 
   *ptxtAbout << _("This program comes with ABSOLUTELY NO WARRANTY. This is free software, and you "
@@ -65,7 +65,12 @@ void AboutDialog::CreateControls()
                   "for more details")
              << _T ("\n\n");
 
-  *ptxtAbout << _("WinSplit Revolution Team:") << _T ("\n");
+  ptxtAbout->SetDefaultStyle(
+      wxTextAttr(*wxBLACK, wxNullColour, wxFont(9, wxDEFAULT, wxFONTSTYLE_NORMAL, wxBOLD)));
+  *ptxtAbout << _("Original WinSplit Revolution (2005-2009)") << _T ("\n");
+  ptxtAbout->SetDefaultStyle(attr_tmp);
+  *ptxtAbout << _("Created by Raphael Lencrerot") << _T ("\n\n");
+  *ptxtAbout << _("Team:") << _T ("\n");
   *ptxtAbout << _T ("Raphael Lencrerot (developer)")
              << _T ("\n");
   *ptxtAbout << _T ("Xavier Perrissoud (developer)")
@@ -73,15 +78,9 @@ void AboutDialog::CreateControls()
   *ptxtAbout << _T ("Arturo Espinosa (developer)")
              << _T ("\n");
   *ptxtAbout << _T ("Dan Smith (developer)")
-             << _T ("\n\n");
-
-  *ptxtAbout << _T ("Special thanks to NX (icons design)")
-             << _T ("\n\n");
-
-  *ptxtAbout << _("Windows 11 Port:") << _T ("\n");
-  *ptxtAbout << _T ("x-vibe (Windows 11 compatibility, DPI awareness)")
              << _T ("\n");
-  *ptxtAbout << _T ("https://github.com/x-vibe/winsplit-revolution-revived");
+  *ptxtAbout << _T ("NX (icons design)")
+             << _T ("\n");
   ptxtAbout->SetInsertionPoint(0);
 
   wxBitmap bitmapwx(builtwithwx_xpm);
