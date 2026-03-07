@@ -200,27 +200,41 @@ bool HotkeysManager::LoadData()
     SaveData();
   }
 
-  doc.Load(path);
+  if (!doc.Load(path))
+    return false;
 
-  child = doc.GetRoot()->GetChildren();
+  wxXmlNode* root = doc.GetRoot();
+  if (!root)
+    return false;
+
+  child = root->GetChildren();
 
   while (child) {
-    i = GetTaskIndex(child->GetName());
+    try {
+      i = GetTaskIndex(child->GetName());
+    } catch (const std::runtime_error&) {
+      child = child->GetNext();
+      continue;
+    }
 
     properties = child->GetAttributes();
+    if (!properties) { child = child->GetNext(); continue; }
     value = properties->GetValue();
     vec_hotkey[i].modifier1 = mod_manager.GetValueFromString(value);
 
     properties = properties->GetNext();
+    if (!properties) { child = child->GetNext(); continue; }
     value = properties->GetValue();
     vec_hotkey[i].modifier2 = mod_manager.GetValueFromString(value);
 
     properties = properties->GetNext();
+    if (!properties) { child = child->GetNext(); continue; }
     value = properties->GetValue();
     value.ToLong(&vk);
     vec_hotkey[i].virtualKey = (unsigned int)vk;
 
     properties = properties->GetNext();
+    if (!properties) { child = child->GetNext(); continue; }
     value = properties->GetValue();
     vec_hotkey[i].active = value.Cmp(_T ("True")) == 0;
 

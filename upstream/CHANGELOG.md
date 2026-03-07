@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Options dialog crash on Windows 11**: Registry reads for Active Window Tracking
+  and wallpaper path assumed values always exist. On Windows 11, `ActiveWndTrackTimeout`,
+  `ActiveWndTrkTimeout`, and the IE Desktop registry key are absent. All registry access
+  now guarded with `HasValue`/`Exists` checks and `wxLogNull` error suppression. Affects
+  `setXMouseActivation`, `IsXMouseActivated`, `setAutoZOrderActivation`,
+  `IsAutoZOrderActivated`, `setAutoZOrderDelay`, `getAutoZOrderDelay` in settingsmanager
+  and wallpaper loading in lmpreview.
+- **Potential crash in `GetVersion()`**: `VerQueryValue` result was used without null check;
+  `delete` used instead of `delete[]` for array allocation. Now returns `"0.0.0"` on failure.
+- **Potential crash in `LoadData()`**: XML attribute chain (`GetAttributes()->GetNext()`)
+  had no null checks — malformed `hotkeys.xml` would crash. Also added `doc.Load()` and
+  `GetRoot()` return checks.
+- **Buffer overflow risk in auto-start registration**: Fixed 256-char buffer to `MAX_PATH`.
 - **CRITICAL**: Fixed application blocking Windows shutdown/restart
   - `OnCloseSession()` now calls `ExitMainLoop()` to terminate the wxWidgets event loop during `WM_ENDSESSION` — previously called `event.Skip()` which kept the event loop running, causing Windows to wait indefinitely
   - Update thread (`ReadVersionThread`) now has `Cancel()` method that calls `InternetCloseHandle()` to unblock WinInet network I/O, plus `TestDestroy()` checks throughout the thread entry point

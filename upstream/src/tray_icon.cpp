@@ -268,11 +268,11 @@ void TrayIcon::ReadRegisterAutoStart()
 
 void TrayIcon::WriteRegisterAutoStart(bool start_with_windows)
 {
-  wxChar chemin[256];
+  wxChar chemin[MAX_PATH];
   wxRegKey* pRegKey =
       new wxRegKey(_T ("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"));
   if (start_with_windows) {
-    GetModuleFileName(NULL, chemin, 256);
+    GetModuleFileName(NULL, chemin, MAX_PATH);
     pRegKey->SetValue(_T ("Winsplit"), chemin);
   }
   else {

@@ -3,6 +3,7 @@
 #include "layout_screens.h"
 
 #include <wx/filename.h>
+#include <wx/log.h>
 #include <wx/msw/registry.h>
 
 LMPreview::LMPreview(wxWindow* parent)
@@ -33,14 +34,23 @@ LMPreview::LMPreview(wxWindow* parent)
 
   mdc.SelectObject(wxNullBitmap);
 
-  // Load of the wallpaper image
+  // Load of the wallpaper image (suppress error dialogs for optional registry reads)
   wxString sScrBg;
-  wxRegKey rKey(_T ("HKEY_CURRENT_USER\\Control Panel\\Desktop"));
-  if (!rKey.QueryValue(_T ("WallPaper"), sScrBg)) {
-    rKey.SetName(
-        _T ("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Internet Explorer\\Desktop\\General"));
-    if (!rKey.QueryValue(_T ("WallpaperSource"), sScrBg))
-      rKey.QueryValue(_T ("Wallpaper"), sScrBg);
+  {
+    wxLogNull suppressErrors;
+    wxRegKey desktopKey(_T ("HKEY_CURRENT_USER\\Control Panel\\Desktop"));
+    if (!desktopKey.HasValue(_T ("Wallpaper")) ||
+        !desktopKey.QueryValue(_T ("Wallpaper"), sScrBg)) {
+      // Legacy IE-based wallpaper path (doesn't exist on Windows 11)
+      wxRegKey ieKey(
+          _T ("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Internet Explorer\\Desktop\\General"));
+      if (ieKey.Exists()) {
+        if (ieKey.HasValue(_T ("WallpaperSource")))
+          ieKey.QueryValue(_T ("WallpaperSource"), sScrBg);
+        else if (ieKey.HasValue(_T ("Wallpaper")))
+          ieKey.QueryValue(_T ("Wallpaper"), sScrBg);
+      }
+    }
   }
 
   wxBitmap scrBmp;

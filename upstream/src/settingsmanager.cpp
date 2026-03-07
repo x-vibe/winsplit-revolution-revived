@@ -16,6 +16,7 @@ namespace {
   }
 }
 #include <wx/filename.h>
+#include <wx/log.h>
 #include <wx/msgdlg.h>
 #include <wx/msw/registry.h>
 #include <wx/stdpaths.h>
@@ -455,61 +456,75 @@ void SettingsManager::setDnGMod2(const unsigned int& mod)
   }
 }
 
+// Helper: safely read UserPreferencesMask from HKCU\Control Panel\Desktop.
+// Returns false if the value doesn't exist or can't be read.
+static bool ReadUserPreferencesMask(wxMemoryBuffer& mBuff)
+{
+  wxLogNull suppressErrors;
+  wxRegKey rKey(_T ("HKEY_CURRENT_USER\\Control Panel\\Desktop"));
+  if (!rKey.Exists() || !rKey.HasValue(_T ("UserPreferencesMask")))
+    return false;
+  return rKey.QueryValue(_T ("UserPreferencesMask"), mBuff) && mBuff.GetDataLen() > 0;
+}
+
 void SettingsManager::setXMouseActivation(bool enable)
 {
   long lVal = (enable) ? 1 : 0;
-  wxRegKey rKey(_T ("HKEY_CURRENT_USER\\Control Panel\\Mouse"));
-  if (rKey.HasValue(_T ("ActiveWindowTracking"))) {
-    rKey.SetValue(_T ("ActiveWindowTracking"), lVal);
+  wxRegKey mouseKey(_T ("HKEY_CURRENT_USER\\Control Panel\\Mouse"));
+  if (mouseKey.HasValue(_T ("ActiveWindowTracking"))) {
+    mouseKey.SetValue(_T ("ActiveWindowTracking"), lVal);
     return;
   }
 
-  rKey.SetName(_T ("HKEY_CURRENT_USER\\Control Panel\\Desktop"));
   wxMemoryBuffer mBuff;
-  rKey.QueryValue(_T ("UserPreferencesMask"), mBuff);
+  if (!ReadUserPreferencesMask(mBuff))
+    return;
   unsigned char c = *(unsigned char*)(mBuff.GetData());
   if (enable)
     c |= 1;
   else
     c &= 0xfe;
   *(unsigned char*)(mBuff.GetData()) = c;
-  rKey.SetValue(_T ("UserPreferencesMask"), mBuff);
+  wxRegKey desktopKey(_T ("HKEY_CURRENT_USER\\Control Panel\\Desktop"));
+  desktopKey.SetValue(_T ("UserPreferencesMask"), mBuff);
 }
 
 bool SettingsManager::IsXMouseActivated()
 {
-  wxMemoryBuffer mBuff;
   long lVal;
+  wxRegKey mouseKey(_T ("HKEY_CURRENT_USER\\Control Panel\\Mouse"));
+  if (mouseKey.HasValue(_T ("ActiveWindowTracking"))) {
+    if (mouseKey.QueryValue(_T ("ActiveWindowTracking"), &lVal))
+      return lVal != 0;
+  }
 
-  wxRegKey rKey(_T ("HKEY_CURRENT_USER\\Control Panel\\Mouse"));
-  if (rKey.QueryValue(_T ("ActiveWindowTracking"), &lVal))
-    return (lVal) ? true : false;
-
-  rKey.SetName(_T ("HKEY_CURRENT_USER\\Control Panel\\Desktop"));
-  rKey.QueryValue(_T ("UserPreferencesMask"), mBuff);
+  wxMemoryBuffer mBuff;
+  if (!ReadUserPreferencesMask(mBuff))
+    return false;
   char c = *(char*)(mBuff.GetData());
   return ((c & 1) == 1);
 }
 
 void SettingsManager::setAutoZOrderActivation(bool enable)
 {
-  wxRegKey rKey(_T ("HKEY_CURRENT_USER\\Control Panel\\Desktop"));
   wxMemoryBuffer mBuff;
-  rKey.QueryValue(_T ("UserPreferencesMask"), mBuff);
+  if (!ReadUserPreferencesMask(mBuff))
+    return;
   unsigned char c = *(unsigned char*)(mBuff.GetData());
   if (enable)
     c |= 0x40;
   else
     c &= 0xbf;
   *(unsigned char*)(mBuff.GetData()) = c;
+  wxRegKey rKey(_T ("HKEY_CURRENT_USER\\Control Panel\\Desktop"));
   rKey.SetValue(_T ("UserPreferencesMask"), mBuff);
 }
 
 bool SettingsManager::IsAutoZOrderActivated()
 {
-  wxRegKey rKey(_T ("HKEY_CURRENT_USER\\Control Panel\\Desktop"));
   wxMemoryBuffer mBuff;
-  rKey.QueryValue(_T ("UserPreferencesMask"), mBuff);
+  if (!ReadUserPreferencesMask(mBuff))
+    return false;
   char c = *(char*)(mBuff.GetData());
   return ((c & 0x40) == 0x40);
 }
@@ -519,7 +534,7 @@ void SettingsManager::setAutoZOrderDelay(int value)
   wxRegKey rKey(_T ("HKEY_CURRENT_USER\\Control Panel\\Desktop"));
   if (rKey.HasValue(_T ("ActiveWndTrackTimeout")))
     rKey.SetValue(_T ("ActiveWndTrackTimeout"), (long)value);
-  else
+  else if (rKey.HasValue(_T ("ActiveWndTrkTimeout")))
     rKey.SetValue(_T ("ActiveWndTrkTimeout"), (long)value);
 }
 
@@ -529,7 +544,7 @@ int SettingsManager::getAutoZOrderDelay()
   long lVal = 0;
   if (rKey.HasValue(_T ("ActiveWndTrackTimeout")))
     rKey.QueryValue(_T ("ActiveWndTrackTimeout"), &lVal);
-  else
+  else if (rKey.HasValue(_T ("ActiveWndTrkTimeout")))
     rKey.QueryValue(_T ("ActiveWndTrkTimeout"), &lVal);
   return (int)lVal;
 }

@@ -155,17 +155,28 @@ bool WinSplitApp::IsAlreadyRunning()
 
 wxString WinSplitApp::GetVersion()
 {
-  wxString sResult;
   wxString sfname = argv[0];
   DWORD dwH;
   DWORD dwSize = GetFileVersionInfoSize(sfname.c_str(), &dwH);
-  char* szVerInf = new char[dwSize + 5];
-  GetFileVersionInfo(sfname, 0, dwSize + 4, szVerInf);
-  wxChar* szValue;
-  UINT uiSize;
-  VerQueryValue(szVerInf, L"\\StringFileInfo\\000904b0\\FileVersion", (void**)&szValue, &uiSize);
-  sResult = wxString(szValue);
-  delete szVerInf;
+  if (dwSize == 0)
+    return _T ("0.0.0");
+
+  char* szVerInf = new char[dwSize];
+  if (!GetFileVersionInfo(sfname.c_str(), 0, dwSize, szVerInf)) {
+    delete[] szVerInf;
+    return _T ("0.0.0");
+  }
+
+  wxChar* szValue = nullptr;
+  UINT uiSize = 0;
+  if (!VerQueryValue(szVerInf, L"\\StringFileInfo\\000904b0\\FileVersion", (void**)&szValue, &uiSize)
+      || !szValue || uiSize == 0) {
+    delete[] szVerInf;
+    return _T ("0.0.0");
+  }
+
+  wxString sResult(szValue);
+  delete[] szVerInf;
   return sResult;
 }
 
