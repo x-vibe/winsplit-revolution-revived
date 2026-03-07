@@ -7,6 +7,7 @@
 #define TEST_HARNESS_H
 
 #include <windows.h>
+#include <tlhelp32.h>
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -103,10 +104,10 @@ inline void RunTest(const char* testName, std::function<bool()> testFunc) {
     DWORD start = GetTickCount();
     bool result = false;
 
-    __try {
+    try {
         result = testFunc();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {
+    catch (...) {
         RecordResult(testName, false, "Exception occurred");
         return;
     }
@@ -155,15 +156,8 @@ inline int Summarize() {
     }
 }
 
-// Find WinSplit main window
-inline HWND FindWinSplitWindow() {
-    // WinSplit uses a hidden hook frame window
-    return FindWindow(NULL, L"WinSplit Revolution - Hook Frame");
-}
-
 // Check if WinSplit is running
 inline bool IsWinSplitRunning() {
-    // Look for the WinSplit process
     HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if (snapshot == INVALID_HANDLE_VALUE) return false;
 
@@ -206,6 +200,30 @@ inline DWORD GetWinSplitProcessId() {
     return pid;
 }
 
+// Find WinSplit main window (FrameHook has an empty title, find by process)
+inline HWND FindWinSplitWindow() {
+    DWORD pid = GetWinSplitProcessId();
+    if (!pid) return NULL;
+
+    struct EnumData { DWORD pid; HWND result; };
+    EnumData data = { pid, NULL };
+
+    EnumWindows([](HWND hwnd, LPARAM lParam) -> BOOL {
+        auto* d = reinterpret_cast<EnumData*>(lParam);
+        DWORD windowPid = 0;
+        GetWindowThreadProcessId(hwnd, &windowPid);
+        if (windowPid != d->pid) return TRUE;
+        LONG exStyle = GetWindowLongW(hwnd, GWL_EXSTYLE);
+        if (exStyle & WS_EX_TOOLWINDOW) {
+            d->result = hwnd;
+            return FALSE;
+        }
+        return TRUE;
+    }, reinterpret_cast<LPARAM>(&data));
+
+    return data.result;
+}
+
 // Wait for window to appear with timeout
 inline HWND WaitForWindow(const wchar_t* className, const wchar_t* windowName, DWORD timeoutMs) {
     DWORD start = GetTickCount();
@@ -245,8 +263,5 @@ inline RECT GetMonitorWorkArea(POINT pt) {
 }
 
 } // namespace TestHarness
-
-// Include necessary headers for process enumeration
-#include <tlhelp32.h>
 
 #endif // TEST_HARNESS_H

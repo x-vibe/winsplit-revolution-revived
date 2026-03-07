@@ -13,6 +13,7 @@ env:
   SOLUTION_FILE: upstream/Winsplit Revolution.sln
   BUILD_CONFIGURATION: Release
   BUILD_PLATFORM: x64
+  VERSION: "10.2.0"
 
 jobs:
   build:
@@ -79,7 +80,7 @@ jobs:
 
     - name: Create portable ZIP
       run: |
-        $version = "10.0.2"
+        $version = "${{ env.VERSION }}"
         $zipName = "WinSplit-Revolution-v$version-portable-x64.zip"
 
         # Create portable directory structure
@@ -115,14 +116,15 @@ jobs:
       working-directory: upstream/nsis
       run: |
         # Update version in NSI file
-        (Get-Content "Winsplit-SetupScript.nsi") -replace 'PRODUCT_VERSION "9.02"', 'PRODUCT_VERSION "10.0.2"' | Set-Content "Winsplit-SetupScript.nsi"
+        (Get-Content "Winsplit-SetupScript.nsi") -replace 'PRODUCT_VERSION "[^"]*"', 'PRODUCT_VERSION "${{ env.VERSION }}"' | Set-Content "Winsplit-SetupScript.nsi"
 
         # Build installer
         & "C:\Program Files (x86)\NSIS\makensis.exe" "Winsplit-SetupScript.nsi"
 
         # Rename output to include architecture
-        if (Test-Path "WinSplit-Revolution-v10.0.2.exe") {
-          Rename-Item "WinSplit-Revolution-v10.0.2.exe" "WinSplit-Revolution-v10.0.2-setup-x64.exe"
+        $installerName = "WinSplit-Revolution-v${{ env.VERSION }}.exe"
+        if (Test-Path $installerName) {
+          Rename-Item $installerName "WinSplit-Revolution-v${{ env.VERSION }}-setup-x64.exe"
         }
 
     - name: Upload portable ZIP artifact
@@ -139,8 +141,28 @@ jobs:
         path: upstream/nsis/WinSplit-Revolution-v*-setup-x64.exe
         if-no-files-found: warn
 
-  release:
+  test:
     needs: build
+    runs-on: windows-2022
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Configure CMake
+      working-directory: tests
+      run: cmake -B build -S .
+
+    - name: Build tests
+      working-directory: tests
+      run: cmake --build build --config Release
+
+    - name: Run tests (excluding interactive)
+      working-directory: tests/build
+      run: ctest --config Release --output-on-failure -E "\[\.interactive\]"
+
+  release:
+    needs: [build, test]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
 

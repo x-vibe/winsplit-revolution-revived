@@ -5,6 +5,7 @@
 
 #include <catch2/catch_all.hpp>
 #include <windows.h>
+#include <tlhelp32.h>
 #include <dwmapi.h>
 #include <vector>
 
@@ -78,7 +79,22 @@ int GetMonitorIndex(POINT pt) {
 }
 
 bool IsWinSplitRunning() {
-    return FindWindow(nullptr, L"WinSplit Revolution - Hook Frame") != nullptr;
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (snapshot == INVALID_HANDLE_VALUE) return false;
+
+    PROCESSENTRY32W pe;
+    pe.dwSize = sizeof(pe);
+    bool found = false;
+    if (Process32FirstW(snapshot, &pe)) {
+        do {
+            if (_wcsicmp(pe.szExeFile, L"Winsplit.exe") == 0) {
+                found = true;
+                break;
+            }
+        } while (Process32NextW(snapshot, &pe));
+    }
+    CloseHandle(snapshot);
+    return found;
 }
 
 }  // namespace

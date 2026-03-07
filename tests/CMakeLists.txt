@@ -12,6 +12,9 @@ if(NOT WIN32)
     message(FATAL_ERROR "WinSplit tests only run on Windows")
 endif()
 
+# Match main project: use Unicode Win32 APIs.
+# Applied per-target (not globally) to avoid affecting Catch2/GTest internals.
+
 # ============================================================
 # Google Test Integration (Industry Standard)
 # ============================================================
@@ -62,6 +65,8 @@ add_executable(security_tests
     security/gtest_http_updates.cpp
 )
 target_link_libraries(security_tests PRIVATE GTest::gtest_main ${WIN_LIBS})
+target_compile_definitions(security_tests PRIVATE UNICODE _UNICODE)
+target_link_options(security_tests PRIVATE /ENTRY:mainCRTStartup)
 target_include_directories(security_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # ============================================================
@@ -73,17 +78,22 @@ add_executable(functional_tests
     functional/catch2_dpi_awareness.cpp
 )
 target_link_libraries(functional_tests PRIVATE Catch2::Catch2WithMain ${WIN_LIBS})
+target_compile_definitions(functional_tests PRIVATE UNICODE _UNICODE)
 target_include_directories(functional_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # ============================================================
 # Stress Tests
 # ============================================================
-add_executable(stress_tests
-    stress/test_rapid_hotkeys.cpp
-    stress/test_memory_leaks.cpp
-)
-target_link_libraries(stress_tests PRIVATE GTest::gtest_main ${WIN_LIBS})
-target_include_directories(stress_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+# Stress tests use custom TestHarness (not GTest), split into separate executables
+add_executable(stress_rapid_hotkeys stress/test_rapid_hotkeys.cpp)
+target_link_libraries(stress_rapid_hotkeys PRIVATE ${WIN_LIBS})
+target_compile_definitions(stress_rapid_hotkeys PRIVATE UNICODE _UNICODE)
+target_include_directories(stress_rapid_hotkeys PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+add_executable(stress_memory_leaks stress/test_memory_leaks.cpp)
+target_link_libraries(stress_memory_leaks PRIVATE ${WIN_LIBS})
+target_compile_definitions(stress_memory_leaks PRIVATE UNICODE _UNICODE)
+target_include_directories(stress_memory_leaks PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # ============================================================
 # Shutdown & Cleanup Tests (using Google Test)
@@ -92,6 +102,8 @@ add_executable(shutdown_tests
     shutdown/gtest_shutdown_cleanup.cpp
 )
 target_link_libraries(shutdown_tests PRIVATE GTest::gtest_main ${WIN_LIBS})
+target_compile_definitions(shutdown_tests PRIVATE UNICODE _UNICODE)
+target_link_options(shutdown_tests PRIVATE /ENTRY:mainCRTStartup)
 target_include_directories(shutdown_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # ============================================================
@@ -99,17 +111,22 @@ target_include_directories(shutdown_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 # ============================================================
 add_executable(mock_window tools/mock_window.cpp)
 target_link_libraries(mock_window PRIVATE user32.lib kernel32.lib)
+target_compile_definitions(mock_window PRIVATE UNICODE _UNICODE)
 
 add_executable(message_spoofer tools/message_spoofer.cpp)
 target_link_libraries(message_spoofer PRIVATE user32.lib kernel32.lib)
+target_compile_definitions(message_spoofer PRIVATE UNICODE _UNICODE)
 
 # ============================================================
 # CTest Integration
 # ============================================================
 include(GoogleTest)
 gtest_discover_tests(security_tests)
-gtest_discover_tests(stress_tests)
 gtest_discover_tests(shutdown_tests)
+
+# Stress tests use custom harness - register manually
+add_test(NAME stress_rapid_hotkeys COMMAND stress_rapid_hotkeys)
+add_test(NAME stress_memory_leaks COMMAND stress_memory_leaks)
 
 include(Catch)
 catch_discover_tests(functional_tests)
@@ -131,6 +148,6 @@ add_custom_target(run_functional_tests
 
 add_custom_target(run_all_tests
     COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
-    DEPENDS security_tests functional_tests stress_tests shutdown_tests
+    DEPENDS security_tests functional_tests stress_rapid_hotkeys stress_memory_leaks shutdown_tests
     COMMENT "Running all tests..."
 )

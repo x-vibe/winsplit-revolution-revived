@@ -33,6 +33,9 @@ gettext-tools.zip
 Thumbs.db
 desktop.ini
 
+# Test build artifacts
+tests/build/
+
 # Temporary files
 *.tmp
 *.bak

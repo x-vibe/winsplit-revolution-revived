@@ -5,6 +5,7 @@
 
 #include <catch2/catch_all.hpp>
 #include <windows.h>
+#include <tlhelp32.h>
 #include <dwmapi.h>
 #include <shellscalingapi.h>
 
@@ -75,34 +76,89 @@ RECT GetPrimaryWorkArea() {
 }
 
 bool IsWinSplitRunning() {
-    return FindWindow(nullptr, L"WinSplit Revolution - Hook Frame") != nullptr;
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (snapshot == INVALID_HANDLE_VALUE) return false;
+
+    PROCESSENTRY32W pe;
+    pe.dwSize = sizeof(pe);
+    bool found = false;
+    if (Process32FirstW(snapshot, &pe)) {
+        do {
+            if (_wcsicmp(pe.szExeFile, L"Winsplit.exe") == 0) {
+                found = true;
+                break;
+            }
+        } while (Process32NextW(snapshot, &pe));
+    }
+    CloseHandle(snapshot);
+    return found;
+}
+
+HWND FindHotkeysManagerWindow() {
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (snapshot == INVALID_HANDLE_VALUE) return nullptr;
+
+    PROCESSENTRY32W pe;
+    pe.dwSize = sizeof(pe);
+    DWORD pid = 0;
+    if (Process32FirstW(snapshot, &pe)) {
+        do {
+            if (_wcsicmp(pe.szExeFile, L"Winsplit.exe") == 0) {
+                pid = pe.th32ProcessID;
+                break;
+            }
+        } while (Process32NextW(snapshot, &pe));
+    }
+    CloseHandle(snapshot);
+    if (!pid) return nullptr;
+
+    struct EnumData { DWORD pid; HWND result; };
+    EnumData data = { pid, nullptr };
+
+    EnumWindows([](HWND hwnd, LPARAM lParam) -> BOOL {
+        auto* d = reinterpret_cast<EnumData*>(lParam);
+        DWORD windowPid = 0;
+        GetWindowThreadProcessId(hwnd, &windowPid);
+        if (windowPid != d->pid) return TRUE;
+        LONG exStyle = GetWindowLongW(hwnd, GWL_EXSTYLE);
+        if (exStyle & WS_EX_TOOLWINDOW) return TRUE;
+        wchar_t className[64] = {};
+        GetClassNameW(hwnd, className, 64);
+        if (wcsstr(className, L"wxWindow")) {
+            d->result = hwnd;
+            return FALSE;
+        }
+        return TRUE;
+    }, reinterpret_cast<LPARAM>(&data));
+
+    return data.result;
+}
+
+int VkToHotkeyId(WORD vk) {
+    if (vk >= VK_NUMPAD0 && vk <= VK_NUMPAD9)
+        return 100 + (vk - VK_NUMPAD0);
+    return -1;
 }
 
 void SimulateHotkey(WORD mod, WORD vk) {
+    static HWND hkWnd = FindHotkeysManagerWindow();
+    if (hkWnd) {
+        int id = VkToHotkeyId(vk);
+        if (id >= 0) {
+            PostMessageW(hkWnd, WM_HOTKEY, (WPARAM)id, MAKELPARAM(mod, vk));
+            Sleep(300);
+            return;
+        }
+    }
+    // Fallback: SendInput
     INPUT inputs[4] = {};
     int count = 0;
-
-    if (mod & MOD_CONTROL) {
-        inputs[count].type = INPUT_KEYBOARD;
-        inputs[count].ki.wVk = VK_CONTROL;
-        count++;
-    }
-    if (mod & MOD_ALT) {
-        inputs[count].type = INPUT_KEYBOARD;
-        inputs[count].ki.wVk = VK_MENU;
-        count++;
-    }
-
-    inputs[count].type = INPUT_KEYBOARD;
-    inputs[count].ki.wVk = vk;
-    count++;
-
+    if (mod & MOD_CONTROL) { inputs[count].type = INPUT_KEYBOARD; inputs[count].ki.wVk = VK_CONTROL; count++; }
+    if (mod & MOD_ALT) { inputs[count].type = INPUT_KEYBOARD; inputs[count].ki.wVk = VK_MENU; count++; }
+    inputs[count].type = INPUT_KEYBOARD; inputs[count].ki.wVk = vk; count++;
     SendInput(count, inputs, sizeof(INPUT));
     Sleep(50);
-
-    for (int i = 0; i < count; i++) {
-        inputs[i].ki.dwFlags = KEYEVENTF_KEYUP;
-    }
+    for (int i = 0; i < count; i++) inputs[i].ki.dwFlags = KEYEVENTF_KEYUP;
     SendInput(count, inputs, sizeof(INPUT));
     Sleep(150);
 }
@@ -139,7 +195,7 @@ TEST_CASE("DPI Detection", "[functional][dpi]") {
     }
 }
 
-TEST_CASE("Window Positioning at Current DPI", "[functional][dpi]") {
+TEST_CASE("Window Positioning at Current DPI", "[functional][dpi][.interactive]") {
     if (!IsWinSplitRunning()) {
         SKIP("WinSplit not running");
     }

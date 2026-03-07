@@ -1,3 +1,6 @@
 [submodule "wxWidgets"]
 	path = upstream/wxWidgets
 	url = https://github.com/wxWidgets/wxWidgets.git
+[submodule "upstream/wxWidgets"]
+	path = upstream/wxWidgets
+	url = https://github.com/wxWidgets/wxWidgets.git

@@ -114,7 +114,13 @@ bool VirtualNumpad::IsReduced()
 
 void VirtualNumpad::OnCLose(wxCloseEvent& event)
 {
-  Show(false);
+  if (event.CanVeto()) {
+    // Normal close (user clicked X) - just hide the window
+    Show(false);
+  } else {
+    // Forced close (system shutdown) - allow destruction
+    Destroy();
+  }
 }
 
 void VirtualNumpad::OnClicEvent(wxCommandEvent& event)

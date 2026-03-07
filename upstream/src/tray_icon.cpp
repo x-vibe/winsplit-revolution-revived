@@ -98,14 +98,14 @@ void TrayIcon::Cleanup()
 
   // 3. Handle update thread (joinable wxThread)
   if (p_updateThread) {
-    if (!p_updateThread->IsRunning()) {
-      // Thread finished - properly join and delete
+    if (p_updateThread->IsRunning()) {
+      // Cancel blocking network I/O so the thread can exit promptly
+      p_updateThread->Cancel();
+      p_updateThread->Delete();  // Signals TestDestroy() and waits for thread exit
+    } else {
       p_updateThread->Wait();
-      delete p_updateThread;
     }
-    // If still running during shutdown, the OS will clean up on process exit.
-    // We can't wait indefinitely because the thread does blocking network I/O
-    // and doesn't check TestDestroy().
+    delete p_updateThread;
     p_updateThread = NULL;
   }
 

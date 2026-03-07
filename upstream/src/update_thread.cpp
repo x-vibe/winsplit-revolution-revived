@@ -38,10 +38,21 @@ ReadVersionThread::ReadVersionThread(const unsigned int& timeout)
     , m_strReleaseUrl(GITHUB_RELEASES_URL)
     , m_strReleaseNotes()
     , m_timeout(timeout)
+    , m_hInternet(NULL)
 {
 }
 
 ReadVersionThread::~ReadVersionThread() {}
+
+void ReadVersionThread::Cancel()
+{
+  // Closing the top-level internet handle from another thread causes all
+  // blocking WinInet calls on child handles to fail immediately.
+  HINTERNET h = m_hInternet;
+  m_hInternet = NULL;
+  if (h)
+    InternetCloseHandle(h);
+}
 
 /**
  * @brief Simple JSON value extractor (no external dependency)
@@ -135,18 +146,24 @@ void* ReadVersionThread::Entry()
   }
 
   // SECURITY: Use WinInet for HTTPS support
-  HINTERNET hInternet = InternetOpenW(
+  m_hInternet = InternetOpenW(
       L"WinSplit-Revolution-UpdateChecker/1.0",
       INTERNET_OPEN_TYPE_PRECONFIG,
       NULL, NULL, 0);
 
-  if (!hInternet) {
+  if (!m_hInternet) {
+    return nullptr;
+  }
+
+  if (TestDestroy()) {
+    InternetCloseHandle(m_hInternet);
+    m_hInternet = NULL;
     return nullptr;
   }
 
   // Connect to GitHub API over HTTPS
   HINTERNET hConnect = InternetConnectW(
-      hInternet,
+      m_hInternet,
       GITHUB_API_HOST,
       INTERNET_DEFAULT_HTTPS_PORT,
       NULL, NULL,
@@ -154,7 +171,15 @@ void* ReadVersionThread::Entry()
       0, 0);
 
   if (!hConnect) {
-    InternetCloseHandle(hInternet);
+    InternetCloseHandle(m_hInternet);
+    m_hInternet = NULL;
+    return nullptr;
+  }
+
+  if (TestDestroy()) {
+    InternetCloseHandle(hConnect);
+    InternetCloseHandle(m_hInternet);
+    m_hInternet = NULL;
     return nullptr;
   }
 
@@ -172,7 +197,8 @@ void* ReadVersionThread::Entry()
 
   if (!hRequest) {
     InternetCloseHandle(hConnect);
-    InternetCloseHandle(hInternet);
+    InternetCloseHandle(m_hInternet);
+    m_hInternet = NULL;
     return nullptr;
   }
 
@@ -191,7 +217,11 @@ void* ReadVersionThread::Entry()
   if (!HttpSendRequestW(hRequest, NULL, 0, NULL, 0)) {
     InternetCloseHandle(hRequest);
     InternetCloseHandle(hConnect);
-    InternetCloseHandle(hInternet);
+    // m_hInternet may already be closed by Cancel() — only close if still valid
+    HINTERNET h = m_hInternet;
+    m_hInternet = NULL;
+    if (h)
+      InternetCloseHandle(h);
     return nullptr;
   }
 
@@ -203,11 +233,20 @@ void* ReadVersionThread::Entry()
   while (InternetReadFile(hRequest, buffer, sizeof(buffer) - 1, &bytesRead) && bytesRead > 0) {
     buffer[bytesRead] = '\0';
     responseData += buffer;
+    if (TestDestroy()) break;
   }
 
   InternetCloseHandle(hRequest);
   InternetCloseHandle(hConnect);
-  InternetCloseHandle(hInternet);
+  // m_hInternet may already be closed by Cancel()
+  HINTERNET h = m_hInternet;
+  m_hInternet = NULL;
+  if (h)
+    InternetCloseHandle(h);
+
+  if (TestDestroy()) {
+    return nullptr;
+  }
 
   // Parse JSON response
   if (!responseData.empty()) {

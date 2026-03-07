@@ -9,23 +9,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed memory error on Windows 11 shutdown caused by incomplete resource cleanup
-  - Hotkeys now properly unregistered during system shutdown (not just manual quit via tray menu)
-  - Timer stopped before hook cleanup to prevent use-after-free callbacks
-  - Update thread properly handled during shutdown (joinable thread cleanup)
-  - `TrayIcon` destructor now performs full resource cleanup instead of being empty
+- **CRITICAL**: Fixed application blocking Windows shutdown/restart
+  - `OnCloseSession()` now calls `ExitMainLoop()` to terminate the wxWidgets event loop during `WM_ENDSESSION` — previously called `event.Skip()` which kept the event loop running, causing Windows to wait indefinitely
+  - Update thread (`ReadVersionThread`) now has `Cancel()` method that calls `InternetCloseHandle()` to unblock WinInet network I/O, plus `TestDestroy()` checks throughout the thread entry point
+  - `TrayIcon::Cleanup()` properly cancels and joins the update thread before deletion
+  - `VirtualNumpad::OnCLose()` now calls `Destroy()` on forced close (system shutdown) instead of just hiding the window
   - Added idempotent `Cleanup()` method to prevent double-free on multiple exit paths
+- Fixed wxWidgets submodule — `upstream/wxWidgets/` contained a clone of the parent repo instead of wxWidgets; replaced with proper wxWidgets v3.2.4 checkout with all submodules (pcre, expat, jpeg, png, tiff, zlib, nanosvg)
+- Fixed test suite build (7 pre-existing compilation errors):
+  - Changed UNICODE/\_UNICODE from global to per-target compile definitions to avoid breaking Catch2/GTest internals
+  - Fixed `#include <tlhelp32.h>` ordering in `test_harness.h` (was below functions that use it)
+  - Removed Catch2 v2-style `CATCH_CONFIG_MAIN` that conflicted with Catch2 v3's `Catch2WithMain` library
+  - Split stress tests into separate executables (they use custom TestHarness, not GTest)
+  - Replaced SEH `__try`/`__except` with `try`/`catch(...)` in `test_harness.h` (incompatible with `std::function` in MSVC)
+  - Added `/ENTRY:mainCRTStartup` link option for GTest/Catch2 targets with UNICODE
+- Fixed WinSplit process detection in all test files — was searching for window title `"WinSplit Revolution - Hook Frame"` but FrameHook has an empty title; changed to process-name-based detection via `CreateToolhelp32Snapshot`
 
 ### Added
 
 - `WM_QUERYENDSESSION` handler to consent to Windows shutdown gracefully
-- `DLL_PROCESS_DETACH` safety net in hook DLL for hook cleanup on unload
+- `ReadVersionThread::Cancel()` for safe thread cancellation during shutdown
 - Shutdown and cleanup test suite (`tests/shutdown/gtest_shutdown_cleanup.cpp`)
   - Smoke tests: process/window existence, DLL loading, resource snapshots
   - E2E tests: hotkey availability, hook message handling, session end handling
   - Edge case tests: message flooding, cancelled shutdowns, handle leak detection
   - Memory tests: resource baselines, idle stability
   - Destructive tests (disabled by default): full WM_CLOSE and WM_ENDSESSION exit verification
+
+### Known Issues
+
+- **Functional positioning tests fail in non-interactive sessions**: Tests 35/36/40 use `SendInput()` to simulate `Ctrl+Alt+Numpad` keypresses, but `SendInput` does not trigger `RegisterHotKey`-based `WM_HOTKEY` messages from CLI/background processes. The `HotkeysManager` window is not discoverable via `EnumWindows` (wxWidgets creates it as a non-enumerable window), so direct `PostMessage(WM_HOTKEY)` is not possible without app-side changes. These tests require an interactive desktop session.
+- **Hook spoofing tests skip**: 8 tests in `gtest_hook_spoofing.cpp` skip because they require the hook DLL to be loaded and a valid hook frame target, which needs additional test infrastructure integration.
 
 ---
 

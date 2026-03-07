@@ -22,9 +22,42 @@
 
 namespace ShutdownTestUtils {
 
-// Find the hidden hook frame window used by WinSplit
+// Forward declaration (defined below)
+DWORD GetWinSplitPid();
+
+// Find the hidden hook frame window used by WinSplit.
+// The FrameHook window has an empty title and wxFRAME_TOOL_WINDOW style,
+// so we find it by enumerating windows owned by the WinSplit process.
+struct FindHookFrameData {
+    DWORD pid;
+    HWND  result;
+};
+
+static BOOL CALLBACK EnumWinSplitWindows(HWND hwnd, LPARAM lParam) {
+    auto* data = reinterpret_cast<FindHookFrameData*>(lParam);
+    DWORD windowPid = 0;
+    GetWindowThreadProcessId(hwnd, &windowPid);
+    if (windowPid != data->pid) return TRUE;
+
+    // FrameHook is a tool window (WS_EX_TOOLWINDOW) that is not visible
+    LONG exStyle = GetWindowLongW(hwnd, GWL_EXSTYLE);
+    if (!(exStyle & WS_EX_TOOLWINDOW)) return TRUE;
+
+    // It processes WM_HOTKEY messages, so it should be a valid message target
+    if (IsWindow(hwnd)) {
+        data->result = hwnd;
+        return FALSE;  // Found it
+    }
+    return TRUE;
+}
+
 HWND FindWinSplitHookFrame() {
-    return FindWindowW(nullptr, L"WinSplit Revolution - Hook Frame");
+    DWORD pid = GetWinSplitPid();
+    if (!pid) return nullptr;
+
+    FindHookFrameData data = { pid, nullptr };
+    EnumWindows(EnumWinSplitWindows, reinterpret_cast<LPARAM>(&data));
+    return data.result;
 }
 
 // Find WinSplit process ID

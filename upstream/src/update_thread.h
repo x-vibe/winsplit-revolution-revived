@@ -1,6 +1,12 @@
 #ifndef __WINSPLIT_UPDATES_H__
 #define __WINSPLIT_UPDATES_H__
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#include <wininet.h>
+
 #include "settingsmanager.h"
 
 #include <wx/tokenzr.h>
@@ -20,6 +26,7 @@ private:
   wxString m_strReleaseUrl;
   wxString m_strReleaseNotes;
   unsigned int m_timeout;
+  HINTERNET m_hInternet;  // Stored for external cancellation during shutdown
 
 public:
   ReadVersionThread(const unsigned int& timeout);
@@ -27,6 +34,9 @@ public:
 
   void ForceChecking();
   bool HaveToCheck();
+
+  // Cancel blocking network I/O (safe to call from another thread)
+  void Cancel();
 
   // Version info
   wxString GetVersionString() { return m_strVersion; }

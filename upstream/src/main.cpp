@@ -104,12 +104,14 @@ void WinSplitApp::OnQueryEndSession(wxCloseEvent& event)
 
 void WinSplitApp::OnCloseSession(wxCloseEvent& event)
 {
-  // System is shutting down - perform full cleanup now
+  // System is shutting down - perform full cleanup and exit the event loop.
+  // Without ExitMainLoop(), the wxWidgets message loop keeps running after
+  // WM_ENDSESSION and Windows sees the process as blocking shutdown.
   if (p_tray) {
     p_tray->Cleanup();
   }
 
-  event.Skip();
+  ExitMainLoop();
 }
 
 int WinSplitApp::OnExit()

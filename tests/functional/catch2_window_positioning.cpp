@@ -3,9 +3,9 @@
  * Using Catch2 framework
  */
 
-#define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
 #include <windows.h>
+#include <tlhelp32.h>
 #include <dwmapi.h>
 
 #pragma comment(lib, "dwmapi.lib")
@@ -43,33 +43,86 @@ RECT GetVisibleRect(HWND hwnd) {
     return rect;
 }
 
+// Find WinSplit's HotkeysManager window (a wxFrame that handles WM_HOTKEY)
+HWND FindHotkeysManagerWindow() {
+    // Find WinSplit process
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (snapshot == INVALID_HANDLE_VALUE) return nullptr;
+
+    PROCESSENTRY32W pe;
+    pe.dwSize = sizeof(pe);
+    DWORD pid = 0;
+    if (Process32FirstW(snapshot, &pe)) {
+        do {
+            if (_wcsicmp(pe.szExeFile, L"Winsplit.exe") == 0) {
+                pid = pe.th32ProcessID;
+                break;
+            }
+        } while (Process32NextW(snapshot, &pe));
+    }
+    CloseHandle(snapshot);
+    if (!pid) return nullptr;
+
+    // Enumerate windows to find the HotkeysManager (wxWindowNR, not tool window)
+    struct EnumData { DWORD pid; HWND result; };
+    EnumData data = { pid, nullptr };
+
+    EnumWindows([](HWND hwnd, LPARAM lParam) -> BOOL {
+        auto* d = reinterpret_cast<EnumData*>(lParam);
+        DWORD windowPid = 0;
+        GetWindowThreadProcessId(hwnd, &windowPid);
+        if (windowPid != d->pid) return TRUE;
+
+        // HotkeysManager is a non-tool-window wxFrame (unlike FrameHook which is WS_EX_TOOLWINDOW)
+        LONG exStyle = GetWindowLongW(hwnd, GWL_EXSTYLE);
+        if (exStyle & WS_EX_TOOLWINDOW) return TRUE;
+
+        wchar_t className[64] = {};
+        GetClassNameW(hwnd, className, 64);
+        if (wcsstr(className, L"wxWindow")) {
+            d->result = hwnd;
+            return FALSE;
+        }
+        return TRUE;
+    }, reinterpret_cast<LPARAM>(&data));
+
+    return data.result;
+}
+
+// WinSplit hotkey IDs start at HK_0 = 100
+// Mapping: VK_NUMPAD0 -> HK_0(100), VK_NUMPAD1 -> HK_1(101), ...
+int VkToHotkeyId(WORD vk) {
+    if (vk >= VK_NUMPAD0 && vk <= VK_NUMPAD9)
+        return 100 + (vk - VK_NUMPAD0);
+    return -1;
+}
+
 void SimulateHotkey(WORD mod, WORD vk) {
-    INPUT inputs[4] = {};
-    int count = 0;
-
-    if (mod & MOD_CONTROL) {
-        inputs[count].type = INPUT_KEYBOARD;
-        inputs[count].ki.wVk = VK_CONTROL;
-        count++;
+    // Post WM_HOTKEY directly to WinSplit's HotkeysManager window.
+    // SendInput doesn't reliably trigger RegisterHotKey from non-interactive processes.
+    static HWND hkWnd = FindHotkeysManagerWindow();
+    if (!hkWnd) {
+        // Fallback: try SendInput
+        INPUT inputs[4] = {};
+        int count = 0;
+        if (mod & MOD_CONTROL) { inputs[count].type = INPUT_KEYBOARD; inputs[count].ki.wVk = VK_CONTROL; count++; }
+        if (mod & MOD_ALT) { inputs[count].type = INPUT_KEYBOARD; inputs[count].ki.wVk = VK_MENU; count++; }
+        inputs[count].type = INPUT_KEYBOARD; inputs[count].ki.wVk = vk; count++;
+        SendInput(count, inputs, sizeof(INPUT));
+        Sleep(50);
+        for (int i = 0; i < count; i++) inputs[i].ki.dwFlags = KEYEVENTF_KEYUP;
+        SendInput(count, inputs, sizeof(INPUT));
+        Sleep(150);
+        return;
     }
-    if (mod & MOD_ALT) {
-        inputs[count].type = INPUT_KEYBOARD;
-        inputs[count].ki.wVk = VK_MENU;
-        count++;
-    }
 
-    inputs[count].type = INPUT_KEYBOARD;
-    inputs[count].ki.wVk = vk;
-    count++;
+    int id = VkToHotkeyId(vk);
+    if (id < 0) return;
 
-    SendInput(count, inputs, sizeof(INPUT));
-    Sleep(50);
-
-    for (int i = 0; i < count; i++) {
-        inputs[i].ki.dwFlags = KEYEVENTF_KEYUP;
-    }
-    SendInput(count, inputs, sizeof(INPUT));
-    Sleep(150);
+    // WM_HOTKEY: wParam = hotkey ID, lParam = LOWORD(modifiers) | HIWORD(vk)
+    LPARAM lp = MAKELPARAM(mod, vk);
+    PostMessageW(hkWnd, WM_HOTKEY, (WPARAM)id, lp);
+    Sleep(300);  // Give WinSplit time to process and move the window
 }
 
 RECT GetPrimaryWorkArea() {
@@ -79,12 +132,28 @@ RECT GetPrimaryWorkArea() {
 }
 
 bool IsWinSplitRunning() {
-    return FindWindow(nullptr, L"WinSplit Revolution - Hook Frame") != nullptr;
+    // Detect by process name since the hook frame has no window title
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (snapshot == INVALID_HANDLE_VALUE) return false;
+
+    PROCESSENTRY32W pe;
+    pe.dwSize = sizeof(pe);
+    bool found = false;
+    if (Process32FirstW(snapshot, &pe)) {
+        do {
+            if (_wcsicmp(pe.szExeFile, L"Winsplit.exe") == 0) {
+                found = true;
+                break;
+            }
+        } while (Process32NextW(snapshot, &pe));
+    }
+    CloseHandle(snapshot);
+    return found;
 }
 
 }  // namespace
 
-TEST_CASE("Window Positioning", "[functional][positioning]") {
+TEST_CASE("Window Positioning", "[functional][positioning][.interactive]") {
     if (!IsWinSplitRunning()) {
         SKIP("WinSplit not running");
     }
@@ -178,7 +247,7 @@ TEST_CASE("Window Positioning", "[functional][positioning]") {
     }
 }
 
-TEST_CASE("DWM Frame Compensation", "[functional][dwm]") {
+TEST_CASE("DWM Frame Compensation", "[functional][dwm][.interactive]") {
     if (!IsWinSplitRunning()) {
         SKIP("WinSplit not running");
     }

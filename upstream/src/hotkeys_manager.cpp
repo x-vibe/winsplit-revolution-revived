@@ -99,7 +99,8 @@ wxString HotkeysManager::Start()
   str_in[21] = _("Toggle Virtual Numpad");
 
   for (unsigned int i = 0; i < vec_hotkey.size(); ++i) {
-    if (vec_hotkey[i].session = vec_hotkey[i].active) {
+    vec_hotkey[i].session = vec_hotkey[i].active;
+    if (vec_hotkey[i].session) {
       vec_hotkey[i].session = ::RegisterHotKey((HWND)GetHandle(),
                                                HK_0 + i,
                                                vec_hotkey[i].modifier1 | vec_hotkey[i].modifier2,
