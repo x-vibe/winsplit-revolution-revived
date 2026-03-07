@@ -15,9 +15,9 @@ WinSplit Revolution is a Windows desktop utility (C++ with wxWidgets) for window
 
 ## Credits
 
-Original WinSplit Revolution Copyright (C) 2005-2009 by Raphael Lencrerot.
-Team: Raphael Lencrerot, Xavier Perrissoud, Arturo Espinosa, Dan Smith.
-Previous maintainer: [dozius](https://github.com/dozius/winsplit-revolution).
+Original WinSplit Revolution (2005-2009) created by Raphael Lencrerot, Xavier Perrissoud, Arturo Espinosa, and Dan Smith.
+Kept alive by [dozius](https://github.com/dozius/winsplit-revolution) and [skullzy](https://codeberg.org/skullzy/winsplit-revolution).
+Now maintained by [x-vibe](https://github.com/x-vibe) — open source under GPLv3.
 
 ## Build Commands
 
@@ -198,24 +198,24 @@ Project includes `.clang-format` in upstream directory.
 
 ### Progress Summary
 
-**Current Version:** v10.2.0 (Released 2026-01-25)
+**Current Version:** v10.3.0 (Released 2026-03-07)
 
 | Category | Done | Total |
 |----------|------|-------|
 | Setup & Build | 7 | 20 |
-| Security Critical | 0 | 25 |
-| Security High | 0 | 25 |
-| Security Medium | 0 | 20 |
+| Security Critical | 25 | 25 |
+| Security High | 25 | 25 |
+| Security Medium | 20 | 20 |
 | Windows 11 Compat | 20 | 30 |
 | Multi-Monitor | 5 | 20 |
 | Code Quality | 5 | 25 |
 | Testing | 23 | 35 |
-| Documentation | 10 | 20 |
+| Documentation | 12 | 20 |
 | CI/CD | 0 | 15 |
-| Release | 5 | 15 |
+| Release | 8 | 15 |
 | **Edge Case Testing** | **0** | **235** |
 | Future Features | 0 | 10 |
-| **TOTAL** | **75** | **515** |
+| **TOTAL** | **150** | **515** |
 
 ### Edge Case Testing Categories (#281-515)
 
@@ -239,12 +239,11 @@ cd tests && build_cmake.cmd && cd build && ctest
 cd tests/pentest && setup_pentest_tools.cmd && run_pentest.cmd
 ```
 
-### Priority Security Fixes (TASKS.md #21-70)
+### Completed Security Fixes (v10.2.0)
 
-| Task # | Issue | Risk |
-|--------|-------|------|
-| 21-35 | HTTP updates → HTTPS | CRITICAL |
-| 36-45 | Hook message validation | CRITICAL |
-| 46-55 | DLL load path hardening | HIGH |
-| 56-65 | Minimum process permissions | HIGH |
-| 66-70 | Input validation | MEDIUM |
+All priority security tasks (#21-70) were completed:
+- HTTPS update mechanism via GitHub Releases API
+- Hook message rate limiting and validation
+- DLL load path hardening with restricted search order
+- Minimum process permissions (PROCESS_QUERY_LIMITED_INFORMATION)
+- Input validation and bounds checking on all XML values
