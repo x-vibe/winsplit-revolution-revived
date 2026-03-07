@@ -4,7 +4,6 @@
 [![Platform: Windows 10/11](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D4.svg)]()
 [![Latest Release](https://img.shields.io/github/v/release/x-vibe/winsplit-revolution-revived)](https://github.com/x-vibe/winsplit-revolution-revived/releases/latest)
 [![Architecture: x64](https://img.shields.io/badge/arch-x64-green.svg)]()
-[![Build Status](https://github.com/x-vibe/winsplit-revolution-revived/actions/workflows/build.yml/badge.svg)](https://github.com/x-vibe/winsplit-revolution-revived/actions)
 
 A lightweight, open-source window manager for Windows that tiles, snaps, and organizes windows using keyboard hotkeys and a virtual numpad.
 
@@ -194,7 +193,7 @@ msbuild "Winsplit Revolution.sln" /p:Configuration=Release /p:Platform=x64 /m
 |------|-------------|
 | `upstream/x64/Release/Winsplit.exe` | Main application |
 | `upstream/x64/Release/winsplithook.dll` | Hook DLL for Drag'n'Go and window movement tracking |
-| `dist/WinSplit-Revolution-v10.2.0-portable-x64.zip` | Ready-to-distribute portable package |
+| `dist/WinSplit-Revolution-v*-portable-x64.zip` | Ready-to-distribute portable package |
 
 ### VS Code Integration
 
@@ -211,40 +210,33 @@ The repository includes `.vscode/tasks.json` for building directly from VS Code 
 
 ---
 
-## What's New in v10.2.0
+## What's Changed Since the Original
 
-Released 2026-01-25.
+This fork modernizes WinSplit Revolution for current Windows versions. Highlights:
 
-### Critical Fixes
+### Stability & Compatibility
 
-- Fixed application startup crash caused by null pointer dereference in XML settings parsing
-- Added support for alternate XML settings formats from different WinSplit versions
-- Fixed language dropdown displaying garbled characters for non-Latin scripts
+- Full Windows 10/11 support with DPI awareness (Per-Monitor DPI V2)
+- Fixed DWM invisible frame handling for pixel-accurate window positioning
+- Fixed application blocking Windows shutdown/restart
+- Fixed Options dialog crash on Windows 11 (registry values that don't exist on modern Windows)
+- Fixed startup crash from null pointer dereference in XML settings parsing
+- Hardened all registry access with null checks and error suppression
 
-### Security Hardening
+### Security
 
-- Replaced insecure HTTP update mechanism with HTTPS via GitHub Releases API
-- Added rate limiting to hook message processing (max 50 messages per 100ms)
-- Fixed integer overflow in mouse wheel position tracking
-- Secure DLL loading with path verification and restricted search order (`LOAD_LIBRARY_SEARCH_APPLICATION_DIR | LOAD_LIBRARY_SEARCH_SYSTEM32`)
-- Reduced process permissions from `PROCESS_ALL_ACCESS` to `PROCESS_QUERY_LIMITED_INFORMATION`
-- Added bounds checking for all XML integer values
-- Replaced unsafe `wsprintf` with `StringCchPrintfW` in hook DLL
-- Added HWND validation before `PostMessage` in hook callbacks
-- Added privilege elevation detection and warning at startup
+- Replaced insecure HTTP update checking with HTTPS via GitHub Releases API
+- Secure DLL loading with restricted search order
+- Rate-limited hook message processing to prevent message flood attacks
+- Reduced process permissions to minimum required
+- Bounds checking on all XML config values
+- Privilege elevation detection and warning at startup
 
-### New Features
-
-- File-based debug logging system (disabled by default, enable with `DebugLog::Enable(true)`)
-- Fluent UI System Icons for Windows 11-style appearance
-
-### Previous Release (v10.1.0)
+### Modernization
 
 - Migrated from wxWidgets 2.x to wxWidgets 3.x
-- Updated to Visual Studio 2025/2026 (v145 toolset)
-- Windows 11 compatibility with DPI awareness (Per-Monitor DPI V2)
-- Fixed DWM invisible frame handling for accurate window positioning
-- GitHub Actions CI/CD for automated builds
+- Builds with Visual Studio 2022+ and current Windows SDK
+- Static CRT linking (no runtime dependencies)
 
 [View full changelog](upstream/CHANGELOG.md)
 
@@ -278,14 +270,11 @@ Open an issue on the [GitHub issue tracker](https://github.com/x-vibe/winsplit-r
 
 ## Credits
 
-**WinSplit Revolution** -- Copyright (C) 2005-2009 Raphael Lencrerot
+**Original WinSplit Revolution** (2005-2009) created by Raphael Lencrerot, Xavier Perrissoud, Arturo Espinosa, and Dan Smith.
 
-**Original Team:** Raphael Lencrerot, Xavier Perrissoud, Arturo Espinosa, Dan Smith
+Kept alive by [dozius](https://github.com/dozius/winsplit-revolution) (Windows 10 fixes) and [skullzy](https://codeberg.org/skullzy/winsplit-revolution) (Codeberg preservation).
 
-**Previous Maintainers:**
-
-- [dozius](https://github.com/dozius/winsplit-revolution) -- Windows 10 fixes and initial modernization
-- [skullzy](https://codeberg.org/skullzy/winsplit-revolution) -- Codeberg mirror and preservation
+Now maintained by [x-vibe](https://github.com/x-vibe) -- contributions welcome!
 
 ---
 

@@ -1,6 +1,5 @@
 # WinSplit Revolution Revived
 
-[![Build Status](https://github.com/x-vibe/winsplit-revolution-revived/actions/workflows/build.yml/badge.svg)](https://github.com/x-vibe/winsplit-revolution-revived/actions)
 [![Release](https://img.shields.io/github/v/release/x-vibe/winsplit-revolution-revived)](https://github.com/x-vibe/winsplit-revolution-revived/releases)
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 
@@ -80,18 +79,11 @@ msbuild "Winsplit Revolution.sln" /p:Configuration=Release /p:Platform=x64
 
 ## Credits
 
-**Original WinSplit Revolution** (2005-2009):
-- Raphael Lencrerot (lead developer)
-- Xavier Perrissoud
-- Arturo Espinosa
-- Dan Smith
+**Original WinSplit Revolution** (2005-2009) created by Raphael Lencrerot, Xavier Perrissoud, Arturo Espinosa, and Dan Smith.
 
-**Previous Maintainers**:
-- [dozius](https://github.com/dozius/winsplit-revolution) - Windows 10 invisible frame fix
-- [skullzy](https://codeberg.org/skullzy/winsplit-revolution) - Codeberg maintenance
+Kept alive by [dozius](https://github.com/dozius/winsplit-revolution) (Windows 10 fixes) and [skullzy](https://codeberg.org/skullzy/winsplit-revolution) (Codeberg preservation).
 
-**This Fork**:
-- [x-vibe](https://github.com/x-vibe) - Windows 11 support, wxWidgets 3.x migration
+Now maintained by [x-vibe](https://github.com/x-vibe) -- contributions welcome!
 
 ## License
 
