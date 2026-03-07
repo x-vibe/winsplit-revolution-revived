@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **Single version source of truth**: Version is now defined once in `VERSION` file at repo root.
+  `build.cmd` generates `version.h` at build time, `ressource.rc` reads from the header, and
+  `Winsplit-SetupScript.nsi` reads from the file via `!searchparse`. No more triple-editing.
+- Replaced deprecated `std::auto_ptr` with `std::unique_ptr` in dialog_options.cpp (C++17 compat)
+- `build.cmd` now copies images and language files to `bin/` for portable ZIP and NSIS packaging
+
+### Added
+
+- GitHub Actions CI workflow (`.github/workflows/build.yml`): builds on push/PR, caches wxWidgets,
+  generates version header, uploads artifacts, creates draft releases on tags
+- Build badge restored in README (now backed by actual workflow)
+
+---
+
 ## [10.3.0] - 2026-03-07
 
 ### Changed

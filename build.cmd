@@ -31,7 +31,7 @@ echo.
 :: Configuration
 set CONFIG=Release
 set PLATFORM=x64
-set VERSION=10.3.0
+set /p VERSION=<"%~dp0VERSION"
 
 echo Configuration: %CONFIG%
 echo Platform: %PLATFORM%
@@ -62,6 +62,19 @@ if exist "wxWidgets\lib\vc_x64_lib\wxmsw32u_core.lib" (
 )
 echo.
 
+:: Step 1b: Generate version header from VERSION file
+echo       Generating version.h from VERSION file...
+for /f "tokens=1,2,3 delims=." %%a in ("%VERSION%") do (
+    > "src\version.h" echo // Auto-generated from VERSION file by build.cmd — do not edit manually
+    >>"src\version.h" echo #define VER_MAJOR %%a
+    >>"src\version.h" echo #define VER_MINOR %%b
+    >>"src\version.h" echo #define VER_PATCH %%c
+    >>"src\version.h" echo #define VER_BUILD 0
+    >>"src\version.h" echo #define VER_FILE %%a,%%b,%%c,0
+    >>"src\version.h" echo #define VER_STRING "%%a.%%b.%%c.0"
+)
+echo.
+
 :: Step 2: Build WinSplit Revolution
 echo [2/4] Building WinSplit Revolution...
 msbuild "Winsplit Revolution.sln" /p:Configuration=%CONFIG% /p:Platform=%PLATFORM% /m
@@ -77,6 +90,12 @@ echo [3/4] Copying files to bin directory...
 if not exist "bin" mkdir "bin"
 copy /y "x64\%CONFIG%\Winsplit.exe" "bin\" >nul
 copy /y "x64\%CONFIG%\winsplithook.dll" "bin\" >nul
+if exist "x64\%CONFIG%\images" (
+    xcopy /e /i /q /y "x64\%CONFIG%\images" "bin\images\" >nul
+)
+if exist "x64\%CONFIG%\languages" (
+    xcopy /e /i /q /y "x64\%CONFIG%\languages" "bin\languages\" >nul
+)
 echo       Files copied.
 echo.
 

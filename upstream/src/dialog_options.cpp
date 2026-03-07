@@ -906,7 +906,7 @@ void OptionsDialog::OnImportSettings(wxCommandEvent& event)
     return;
   }
   wxZipInputStream z_in(f_in);
-  std::auto_ptr<wxZipEntry> entry;
+  std::unique_ptr<wxZipEntry> entry;
   wxString sDir = m_options.GetDataDirectory();
   while (entry.reset(z_in.GetNextEntry()), entry.get() != NULL) {
     wxString name = sDir + entry->GetName();

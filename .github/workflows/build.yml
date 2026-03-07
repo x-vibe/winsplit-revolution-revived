@@ -13,7 +13,6 @@ env:
   SOLUTION_FILE: upstream/Winsplit Revolution.sln
   BUILD_CONFIGURATION: Release
   BUILD_PLATFORM: x64
-  VERSION: "10.2.0"
 
 jobs:
   build:
@@ -42,6 +41,29 @@ jobs:
         restore-keys: |
           wxwidgets-${{ runner.os }}-x64-release-static-
 
+    - name: Read version from VERSION file
+      id: version
+      shell: pwsh
+      run: |
+        $ver = (Get-Content VERSION -Raw).Trim()
+        echo "VERSION=$ver" >> $env:GITHUB_ENV
+        echo "version=$ver" >> $env:GITHUB_OUTPUT
+
+    - name: Generate version.h
+      shell: cmd
+      working-directory: upstream
+      run: |
+        set /p VER=<..\VERSION
+        for /f "tokens=1,2,3 delims=." %%a in ("%VER%") do (
+          > "src\version.h" echo // Auto-generated from VERSION file
+          >>"src\version.h" echo #define VER_MAJOR %%a
+          >>"src\version.h" echo #define VER_MINOR %%b
+          >>"src\version.h" echo #define VER_PATCH %%c
+          >>"src\version.h" echo #define VER_BUILD 0
+          >>"src\version.h" echo #define VER_FILE %%a,%%b,%%c,0
+          >>"src\version.h" echo #define VER_STRING "%%a.%%b.%%c.0"
+        )
+
     - name: Build wxWidgets
       if: steps.cache-wxwidgets.outputs.cache-hit != 'true'
       working-directory: upstream/wxWidgets/build/msw
@@ -67,15 +89,15 @@ jobs:
 
     - name: Prepare bin directory for packaging
       run: |
-        # Ensure bin directory exists
         New-Item -ItemType Directory -Force -Path "upstream/bin"
-
-        # Copy built files to bin directory (expected by NSIS)
         Copy-Item "upstream/x64/Release/Winsplit.exe" "upstream/bin/" -Force
         Copy-Item "upstream/x64/Release/winsplithook.dll" "upstream/bin/" -Force
-
-        # Verify bin directory contents
-        Write-Host "Bin directory contents:"
+        if (Test-Path "upstream/x64/Release/images") {
+          Copy-Item "upstream/x64/Release/images" "upstream/bin/images" -Recurse -Force
+        }
+        if (Test-Path "upstream/x64/Release/languages") {
+          Copy-Item "upstream/x64/Release/languages" "upstream/bin/languages" -Recurse -Force
+        }
         Get-ChildItem "upstream/bin/" -Recurse
 
     - name: Create portable ZIP
@@ -115,16 +137,11 @@ jobs:
     - name: Build NSIS Installer
       working-directory: upstream/nsis
       run: |
-        # Update version in NSI file
-        (Get-Content "Winsplit-SetupScript.nsi") -replace 'PRODUCT_VERSION "[^"]*"', 'PRODUCT_VERSION "${{ env.VERSION }}"' | Set-Content "Winsplit-SetupScript.nsi"
-
-        # Build installer
         & "C:\Program Files (x86)\NSIS\makensis.exe" "Winsplit-SetupScript.nsi"
-
-        # Rename output to include architecture
-        $installerName = "WinSplit-Revolution-v${{ env.VERSION }}.exe"
+        $version = "${{ env.VERSION }}"
+        $installerName = "WinSplit-Revolution-v$version.exe"
         if (Test-Path $installerName) {
-          Rename-Item $installerName "WinSplit-Revolution-v${{ env.VERSION }}-setup-x64.exe"
+          Rename-Item $installerName "WinSplit-Revolution-v$version-setup-x64.exe"
         }
 
     - name: Upload portable ZIP artifact

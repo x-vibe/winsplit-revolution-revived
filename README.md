@@ -4,6 +4,7 @@
 [![Platform: Windows 10/11](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D4.svg)]()
 [![Latest Release](https://img.shields.io/github/v/release/x-vibe/winsplit-revolution-revived)](https://github.com/x-vibe/winsplit-revolution-revived/releases/latest)
 [![Architecture: x64](https://img.shields.io/badge/arch-x64-green.svg)]()
+[![Build](https://github.com/x-vibe/winsplit-revolution-revived/actions/workflows/build.yml/badge.svg)](https://github.com/x-vibe/winsplit-revolution-revived/actions/workflows/build.yml)
 
 A lightweight, open-source window manager for Windows that tiles, snaps, and organizes windows using keyboard hotkeys and a virtual numpad.
 

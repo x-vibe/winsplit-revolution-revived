@@ -21,6 +21,9 @@ x64/
 Debug/
 Release/
 
+# Auto-generated version header
+upstream/src/version.h
+
 # Build tools (downloaded)
 gettext-tools/
 gettext-tools.zip
